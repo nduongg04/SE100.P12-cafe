@@ -21,7 +21,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           <Menu className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>
         </Button>
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 md:px-6">{children}</main>
       </div>
       <Toaster />
     </div>
