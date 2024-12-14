@@ -1,124 +1,72 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Pizza, Utensils, Salad } from "lucide-react";
 
-interface Dish {
-    categoryName: string;
+type ProductReportData = {
+  product: {
+    productID: number;
     productName: string;
-    orderCount: number;
     price: number;
-    imageUrl: string;
-    categoryIcon: React.ElementType;
-    color: string;
-}
+    image: string;
+    isSoldOut: boolean;
+    categoryName: string;
+  };
+  orderCount: number;
+};
 
-const topDishes: Dish[] = [
-    {
-        categoryName: "Burger",
-        productName: "Classic Cheeseburger",
-        orderCount: 532,
-        price: 8.99,
-        imageUrl:
-            "https://img.pikbest.com/ai/illus_our/20230423/07ed8112048ac2452879ab5e4d67c821.jpg!w700wp",
-        categoryIcon: Utensils,
-        color: "bg-orange-500",
-    },
-    {
-        categoryName: "Pizza",
-        productName: "Margherita Pizza",
-        orderCount: 498,
-        price: 12.99,
-        imageUrl:
-            "https://img.pikbest.com/ai/illus_our/20230423/07ed8112048ac2452879ab5e4d67c821.jpg!w700wp",
-        categoryIcon: Pizza,
-        color: "bg-red-500",
-    },
-    {
-        categoryName: "Sushi",
-        productName: "California Roll",
-        orderCount: 456,
-        price: 14.99,
-        imageUrl:
-            "https://img.pikbest.com/ai/illus_our/20230423/07ed8112048ac2452879ab5e4d67c821.jpg!w700wp",
-        categoryIcon: Utensils,
-        color: "bg-green-500",
-    },
-    {
-        categoryName: "Pasta",
-        productName: "Spaghetti Carbonara",
-        orderCount: 423,
-        price: 11.99,
-        imageUrl:
-            "https://img.pikbest.com/ai/illus_our/20230423/07ed8112048ac2452879ab5e4d67c821.jpg!w700wp",
-        categoryIcon: Utensils,
-        color: "bg-yellow-500",
-    },
-    {
-        categoryName: "Salad",
-        productName: "Caesar Salad",
-        orderCount: 387,
-        price: 9.99,
-        imageUrl:
-            "https://img.pikbest.com/ai/illus_our/20230423/07ed8112048ac2452879ab5e4d67c821.jpg!w700wp",
-        categoryIcon: Salad,
-        color: "bg-emerald-500",
-    },
-];
+type TopDishesProps = {
+  data: ProductReportData[];
+};
 
-export default function TopDishes() {
+export default function TopDishes({ data }: TopDishesProps) {
+  if (!data || data.length === 0) {
     return (
-        <div className="w-full">
-            <h2 className="mb-6 text-xl font-semibold text-primary">
-                Top Dishes
-            </h2>
-            <div className="grid w-full grid-cols-2 justify-between gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {topDishes.map((dish, index) => (
-                    <Card
-                        key={index}
-                        className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                        <div
-                            className={`relative flex h-32 items-center justify-center pt-2`}
-                        >
-                            <div className="absolute inset-0 backdrop-blur-md"></div>
-                            <Image
-                                src={dish.imageUrl}
-                                alt={dish.productName}
-                                width={200}
-                                height={200}
-                                className="relative z-10 w-full border-2 border-white object-cover"
-                            />
-                            <div className="absolute left-1 top-1 z-20 rounded-full border p-1">
-                                <dish.categoryIcon className="h-4 w-4 text-primary" />
-                            </div>
-                        </div>
-                        <CardContent className="p-3">
-                            <h3 className="mb-2 w-fit truncate rounded-lg bg-dark-green-foreground/10 px-2 text-sm font-semibold text-dark-green-foreground">
-                                #{dish.categoryName}
-                            </h3>
-                            <h3
-                                className="mb-2 truncate text-sm font-semibold"
-                                title={dish.productName}
-                            >
-                                {dish.productName}
-                            </h3>
-                            <div className="flex items-center justify-between text-xs">
-                                <Badge
-                                    variant="secondary"
-                                    className="px-2 py-1 text-lg font-semibold text-dark-green-foreground text-primary"
-                                >
-                                    <span className="">{dish.orderCount}</span>
-                                    &nbsp;Orders
-                                </Badge>
-                                <span className="font-bold text-primary">
-                                    ${dish.price.toFixed(2)}
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Dishes</CardTitle>
+          <CardDescription>No data available for the selected period</CardDescription>
+        </CardHeader>
+      </Card>
     );
+  }
+
+  // Only show top 5 dishes
+  const topFiveDishes = data.slice(0, 5);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Top Dishes</CardTitle>
+        <CardDescription>Most ordered products for the selected period</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-5 gap-4">
+          {topFiveDishes.map((item) => (
+            <Card key={item.product.productID}>
+              <CardContent className="flex flex-col items-center p-4">
+                <Image
+                  src={item.product.image}
+                  alt={item.product.productName}
+                  width={100}
+                  height={100}
+                  className="mb-2 rounded-full"
+                />
+                <h3 className="text-lg font-semibold text-center">{item.product.productName}</h3>
+                <p className="text-sm text-gray-500">{item.product.categoryName}</p>
+                <p className="mt-2 text-xl font-bold text-[#00B074]">
+                  ${item.product.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                </p>
+                <p className="mt-1 text-sm">Orders: {item.orderCount}</p>
+                {item.product.isSoldOut && (
+                  <span className="mt-2 rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-600">
+                    Sold Out
+                  </span>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
+

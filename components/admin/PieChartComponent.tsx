@@ -1,66 +1,55 @@
-"use client";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { ChartConfig } from "@/components/ui/chart";
-import PieChartSub from "./PieChartSub";
-import ComponentHeader from "./ComponentHeader";
-
-export type PieChartComponentProps = {
-    from: Date;
-    to: Date;
+type BillReportData = {
+  doneCount: number;
+  pendingCount: number;
+  totalCount: number;
+  donePercent: number;
+  pendingPercent: number;
 };
 
-export function PieChartComponent({ from, to }: PieChartComponentProps) {
-    const chartInfos: {
-        chartData: { [key: string]: number | string }[];
-        chartConfig: ChartConfig;
-        footer: string;
-        labelText: number;
-        dataKey: string;
-        nameKey: string;
-    }= 
-        {
-            chartData: [
-                { time: "This period", orders: 19, fill: "#2D9CDB" },
-                {
-                    time: "Remaining",
-                    orders: 81,
-                    fill: "rgb(45 156 219 / 0.2)",
-                },
-            ],
-            chartConfig: {
-                orders: {
-                    label: "Orders",
-                },
-                remaining: {
-                    label: "Remaining",
-                    color: "rgb(45 156 219 / 0.2)",
-                },
-                thisPeriod: {
-                    label: "This period",
-                    color: "#2D9CDB",
-                },
-            },
-            labelText: 19,
-            footer: "Orders",
-            dataKey: "orders",
-            nameKey: "time",
-        }
-    return (
-        <div className="shadow-black-medium flex flex-col justify-between gap-2 rounded-lg bg-white p-4">
-            <ComponentHeader
-                title="Pie Chart"
-                description="See total and orders for the this period"
-            />
-            <div className="flex w-full justify-center">
-                    <PieChartSub
-                    labelText={`${chartInfos.labelText.toLocaleString()}%`}
-                    footer={chartInfos.footer}
-                    chartData={chartInfos.chartData}
-                    chartConfig={chartInfos.chartConfig}
-                    dataKey={chartInfos.dataKey}
-                    nameKey={chartInfos.nameKey}
-                />
-            </div>
-        </div>
-    );
+type PieChartComponentProps = {
+  data: BillReportData;
+  className?: string;
+};
+
+export function PieChartComponent({ data, className }: PieChartComponentProps) {
+  const chartData = [
+    { name: 'Done', value: data.doneCount },
+    { name: 'Pending', value: data.pendingCount },
+  ];
+
+  const COLORS = ['#00B074', '#FF6B6B'];
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle>Order Status</CardTitle>
+        <CardDescription>Distribution of done and pending orders</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
 }
+

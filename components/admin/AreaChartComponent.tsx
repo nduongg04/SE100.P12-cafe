@@ -1,111 +1,101 @@
-"use client";
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { format, parseISO } from 'date-fns';
 
-import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart";
-import ComponentHeader from "./ComponentHeader";
-
-export type AreaChartComponentProps = {
-    from: Date;
-    to: Date;
+type RevenueData = {
+  dateTime: string;
+  revenue: number;
 };
 
-export function AreaChartComponent({ from, to }: AreaChartComponentProps) {
-    const chartData = [
-        { date: "21/05", orders: 237 },
-        { date: "22/05", orders: 73 },
-        { date: "23/05", orders: 209 },
-        { date: "24/05", orders: 214 },
-        { date: "25/05", orders: 214 },
-        { date: "26/05", orders: 214 },
-        { date: "27/05", orders: 214 },
-        { date: "28/05", orders: 50 },
-        { date: "29/05", orders: 153 },
-        { date: "30/05", orders: 234 },
-        { date: "31/05", orders: 54 },
-		
-    ];
+type AreaChartComponentProps = {
+  data: RevenueData[];
+  className?: string;
+  startDate?: Date;
+  endDate?: Date;
+};
 
-    const chartConfig = {
-        orders: {
-            label: "Orders",
-            color: "#6EC8EF",
-        },
-    } satisfies ChartConfig;
+export function AreaChartComponent({ data, className, startDate, endDate }: AreaChartComponentProps) {
+  if (!data || data.length === 0) {
     return (
-        <Card className="col-span-2 border-none rounded-lg shadow-black-medium">
-            <CardHeader>
-                <ComponentHeader
-                    title="Line Chart"
-                    description="See orders for the this period"
-                />
-            </CardHeader>
-            <CardContent>
-                <ChartContainer config={chartConfig} className="max-h-[150px] min-w-full min-h-[150px] ">
-                    <AreaChart
-                        accessibilityLayer
-                        data={chartData}
-                        margin={{
-                            left: 15,
-                            right: 15,
-                        }}
-                    >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="date"
-                            tickLine={false}
-                            tickFormatter={(value) => value.slice(0, 5)}
-                            axisLine={false}
-							interval={0}
-                        />
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent indicator="line" />}
-                        />
-                        <defs>
-                            <linearGradient
-                                id="fillDesktop"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop
-                                    offset="5%"
-                                    stopColor="#6EC8EF"
-                                    stopOpacity={0.8}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor="#6EC8EF"
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                        </defs>
-                        <Area
-                            dataKey="orders"
-                            type="natural"
-                            fill="url(#fillDesktop)"
-                            fillOpacity={0.4}
-                            stroke="#6EC8EF"
-                        />
-                    </AreaChart>
-                </ChartContainer>
-            </CardContent>
-        </Card>
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>Revenue Over Time</CardTitle>
+          <CardDescription>No data available for the selected period</CardDescription>
+        </CardHeader>
+      </Card>
     );
+  }
+
+  const formatXAxis = (tickItem: string) => {
+    try {
+      return format(parseISO(tickItem), 'dd/MM');
+    } catch {
+      return tickItem;
+    }
+  };
+
+  const formatTooltip = (value: number, name: string, props: { payload: RevenueData }) => {
+    if (props && props.payload) {
+      try {
+        const date = parseISO(props.payload.dateTime);
+        return [`$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, format(date, 'dd/MM/yyyy')];
+      } catch {
+        return [`$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, props.payload.dateTime];
+      }
+    }
+    return [`$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, ''];
+  };
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle>Revenue Over Time</CardTitle>
+        <CardDescription>Daily revenue for the selected period</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="dateTime" 
+              tickFormatter={formatXAxis}
+              type="category"
+              interval={Math.ceil(data.length / 15)}
+              tick={{ fontSize: 14 }}
+              height={60}
+              tickMargin={20}
+              angle={-30}
+            />
+            <YAxis 
+              tickFormatter={(value) => `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+              tick={{ fontSize: 14 }}
+            />
+            <Tooltip content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const [formattedValue, formattedDate] = formatTooltip(payload[0].value as number, payload[0].name as string, { payload: payload[0].payload as RevenueData });
+                return (
+                  <div className="bg-white p-2 border border-gray-200 rounded shadow">
+                    <p className="font-semibold">{formattedDate}</p>
+                    <p>Revenue: {formattedValue}</p>
+                  </div>
+                );
+              }
+              return null;
+            }}
+            />
+            <Legend />
+            <Line 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#00B074" 
+              strokeWidth={2} 
+              dot={{ r: 3 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
 }
+

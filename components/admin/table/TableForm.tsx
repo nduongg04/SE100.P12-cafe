@@ -24,7 +24,6 @@ import { table } from "console";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-
 export const tableFormSchema = z.object({
   tableNumber: z.number().min(0, {
     message: "Must be a positive number.",
@@ -34,7 +33,7 @@ export const tableFormSchema = z.object({
   }),
   tableTypeID: z.number().min(0, {
     message: "Table Type must be a positive number.",
-  })
+  }),
 });
 
 export default function TableForm({
@@ -59,7 +58,7 @@ export default function TableForm({
     defaultValues: {
       tableNumber: table?.tableNumber ?? 1,
       floorId: table?.floor.floorNumber ?? 1,
-      tableTypeID: table?.tableTypeID ?? 1
+      tableTypeID: table?.tableTypeID ?? 1,
     },
   });
 
@@ -75,8 +74,7 @@ export default function TableForm({
         check = true;
       }
     });
-    if (!check)
-      onSubmit(values);
+    if (!check) onSubmit(values);
   }
 
   return (
@@ -90,12 +88,12 @@ export default function TableForm({
             <FormItem>
               <FormLabel>Table number</FormLabel>
               <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Enter table number" 
-                  {...field} 
-                  onChange={(e)=> field.onChange(parseInt(e.target.value, 10))}
-                  />
+                <Input
+                  type="number"
+                  placeholder="Enter table number"
+                  {...field}
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

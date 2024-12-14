@@ -62,7 +62,7 @@ const Navbar = ({ isOpen, onClose }: NavBarProps) => {
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-10 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-10 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow",
         isOpen ? "translate-x-0" : "-translate-x-full",
       )}
     >

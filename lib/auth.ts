@@ -61,7 +61,7 @@ async function refreshTokens() {
     if (!response.ok) {
       throw new Error("Token refresh failed");
     }
-
+	
     const accessToken = await response.json();
 
     // Update cookies with new tokens

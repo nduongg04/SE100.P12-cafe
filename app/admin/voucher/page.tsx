@@ -29,115 +29,65 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast, useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import {
   createVoucher,
   deleteVouchers,
   getAllVouchers,
   updateVoucher,
 } from "@/lib/actions/voucher.action";
-import { authenticatedFetch } from "@/lib/auth";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { Pencil, Plus, Search, TriangleAlert, X } from "lucide-react";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { z } from "zod";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
-import Loader from "@/components/admin/Loader";
+import LoadingSpinner from "@/components/admin/LoadingSpinner";
 
 function adjustToLocalDate(date: Date): Date {
   const localDate = new Date(date);
   localDate.setHours(0, 0, 0, 0);
-  const timezoneOffset = localDate.getTimezoneOffset() * 60000; // convert to milliseconds
+  const timezoneOffset = localDate.getTimezoneOffset() * 60000;
   return new Date(localDate.getTime() - timezoneOffset);
 }
 
 export default function VoucherManagement() {
-  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedVouchers, setSelectedVouchers] = useState<number[]>([]);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [editOrAdd, setEditOrAdd] = useState<"edit" | "add">("add");
   const [formMessage, setFormMessage] = useState<string>("");
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingVouchers, setIsLoadingVouchers] = useState(true);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const { data: vouchers = [] as Voucher[], isLoading: isLoadingVouchers } =
-    useQuery({
-      queryKey: ["vouchers"],
-      queryFn: async () => {
-        const vouchers = await getAllVouchers();
-        if (!vouchers) {
+  useEffect(() => {
+    const fetchVouchers = async () => {
+      try {
+        const fetchedVouchers = await getAllVouchers();
+        if (fetchedVouchers) {
+          setVouchers(fetchedVouchers);
+        } else {
           toast({
             title: "Failed to fetch vouchers",
             description: "Please try again",
             variant: "destructive",
           });
-          return [] as Voucher[];
         }
-        return vouchers;
-      },
-    });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch vouchers",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingVouchers(false);
+      }
+    };
 
-  const createMutation = useMutation({
-    mutationFn: createVoucher,
-    onSuccess: (newVoucher) => {
-      queryClient.invalidateQueries({ queryKey: ["vouchers"] });
-      toast({
-        title: "Success",
-        description: "Voucher added successfully",
-        variant: "success",
-      });
-      setIsDialogOpen(false);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to add voucher",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: updateVoucher,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vouchers"] });
-      toast({
-        title: "Success",
-        description: "Voucher updated successfully",
-        variant: "success",
-      });
-      setIsDialogOpen(false);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update voucher",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteVouchers,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vouchers"] });
-      setSelectedVouchers([]);
-      toast({
-        title: "Success",
-        description: "Vouchers deleted successfully",
-        variant: "success",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete vouchers",
-        variant: "destructive",
-      });
-    },
-  });
+    fetchVouchers();
+  }, []);
 
   const filteredVouchers = useMemo(() => {
     if (!debouncedSearchTerm) return vouchers;
@@ -177,38 +127,100 @@ export default function VoucherManagement() {
   };
 
   const handleAddSubmit = async (values: z.infer<typeof formSchema>) => {
-    const updatedValues = {
-      ...values,
-      numberOfApplications: Number(values.numberOfApplications),
-      value: Number(values.value),
-      createdAt: adjustToLocalDate(values.createdAt),
-      expiredAt: adjustToLocalDate(values.expiredAt),
-    };
-    createMutation.mutate(updatedValues);
+    setIsLoading(true);
+    try {
+      const updatedValues = {
+        ...values,
+        numberOfApplications: Number(values.numberOfApplications),
+        value: Number(values.value),
+        createdAt: adjustToLocalDate(values.createdAt),
+        expiredAt: adjustToLocalDate(values.expiredAt),
+      };
+      
+      const newVoucher = await createVoucher(updatedValues);
+      if (newVoucher) {
+        setVouchers((prev) => [...prev, newVoucher]);
+        toast({
+          title: "Success",
+          description: "Voucher added successfully",
+          variant: "success",
+        });
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add voucher",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditSubmit = async (values: z.infer<typeof formSchema>) => {
-    const updatedValues = {
-      ...values,
-      id: editingVoucher!.id,
-      value: Number(values.value),
-      numberOfApplications: Number(values.numberOfApplications),
-      createdAt: adjustToLocalDate(values.createdAt),
-      expiredAt: adjustToLocalDate(values.expiredAt),
-    };
-    updateMutation.mutate(updatedValues);
+    setIsLoading(true);
+    try {
+      const updatedValues = {
+        ...values,
+        id: editingVoucher!.id,
+        value: Number(values.value),
+        numberOfApplications: Number(values.numberOfApplications),
+        createdAt: adjustToLocalDate(values.createdAt),
+        expiredAt: adjustToLocalDate(values.expiredAt),
+      };
+      
+      const updatedVoucher = await updateVoucher(updatedValues);
+      if (updatedVoucher) {
+        setVouchers((prev) =>
+          prev.map((v) => (v.id === updatedVoucher.id ? updatedVoucher : v))
+        );
+        toast({
+          title: "Success",
+          description: "Voucher updated successfully",
+          variant: "success",
+        });
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update voucher",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteConfirm = () => {
-    deleteMutation.mutate(selectedVouchers);
+  const handleDeleteConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await deleteVouchers(selectedVouchers);
+      setVouchers((prev) =>
+        prev.filter((v) => !selectedVouchers.includes(v.id))
+      );
+      setSelectedVouchers([]);
+      toast({
+        title: "Success",
+        description: "Vouchers deleted successfully",
+        variant: "success",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete vouchers",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="container mx-auto p-4">
       <div className="mb-4 flex flex-col gap-5">
-        <h1 className="text-3xl font-bold">Voucher Management</h1>
+        <h1 className="text-3xl font-bold max-md:ml-4">Voucher Management</h1>
         <div className="flex items-center justify-end gap-2">
           <div className="relative flex-1 sm:w-auto">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
@@ -287,7 +299,7 @@ export default function VoucherManagement() {
         </div>
       </div>
       {isLoadingVouchers ? (
-        <Loader />
+        <LoadingSpinner />
       ) : (
         <Table className="rounded-lg bg-white">
           <TableHeader className="">

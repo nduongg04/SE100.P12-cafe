@@ -30,10 +30,9 @@ export const getAllTable = async () => {
     console.error(error);
     return null;
   }
-    
 };
 
-export const getAllTableType = async () => { 
+export const getAllTableType = async () => {
   try {
     const response = await authenticatedFetch(
       `${process.env.BASE_URL}/tableType/getall`,
@@ -45,8 +44,10 @@ export const getAllTableType = async () => {
     console.error(error);
     return null;
   }
-}
-export const addTable = async (table: Omit<Table, "tableID"|"billId"|"status"|"tableType"|"floorId">) => {
+};
+export const addTable = async (
+  table: Omit<Table, "tableID" | "billId" | "status" | "tableType" | "floorId">,
+) => {
   try {
     const response = await authenticatedFetch(
       `${process.env.BASE_URL}/table/create`,
@@ -56,9 +57,9 @@ export const addTable = async (table: Omit<Table, "tableID"|"billId"|"status"|"t
         },
         method: "POST",
         body: JSON.stringify({
-            tableNumber: table.tableNumber,
-            floorId: table.floor.floorID,
-            tableTypeID: table.tableTypeID,
+          tableNumber: table.tableNumber,
+          floorId: table.floor.floorID,
+          tableTypeID: table.tableTypeID,
         }),
       },
     );
@@ -83,29 +84,29 @@ export const deleteTable = async (tableID: number) => {
 };
 
 export const updateTable = async (table: Table) => {
-	try {
-		console.log("Data: ",table)
-		const response = await authenticatedFetch(
-			`${process.env.BASE_URL}/table/update/${table.tableID}`,
-			{
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "PUT",
-				body: JSON.stringify({
-					tableNumber: table.tableNumber,
+  try {
+    console.log("Data: ", table);
+    const response = await authenticatedFetch(
+      `${process.env.BASE_URL}/table/update/${table.tableID}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+        body: JSON.stringify({
+          tableNumber: table.tableNumber,
           floorId: table.floorId,
           tableTypeID: table.tableTypeID,
           status: table.status,
-				}),
-			},
-		);
+        }),
+      },
+    );
     return response.json();
-	} catch (error) {
-		return null;
-	}
-}
-export const addFloor = async (floor: Omit<Floor, "floorID"|"tables">) => {
+  } catch (error) {
+    return null;
+  }
+};
+export const addFloor = async (floor: Omit<Floor, "floorID" | "tables">) => {
   try {
     const response = await authenticatedFetch(
       `${process.env.BASE_URL}/floor/create`,
@@ -115,7 +116,7 @@ export const addFloor = async (floor: Omit<Floor, "floorID"|"tables">) => {
         },
         method: "POST",
         body: JSON.stringify({
-            floorNumber: floor.floorNumber,
+          floorNumber: floor.floorNumber,
         }),
       },
     );
@@ -139,4 +140,4 @@ export const deleteFloor = async (floorID: number) => {
     console.error(error);
     return null;
   }
-}
+};
