@@ -1,5 +1,5 @@
 "use client";
-import {toast} from "sonner";
+import {toast} from "@/hooks/use-toast";
 import { Customer } from "./columns";
 import { getCookies } from "@/lib/action";
 import {
@@ -83,13 +83,21 @@ export function DataTable<TData, TValue>({
     // Validate phone number
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(phoneNumber)) {
-      toast.error('Phone number must be 10 digits and start with 0');
+      toast({
+        title: "Invalid phone number",
+        description: "Phone number must be 10 digits starting with 0",
+        variant: "destructive",
+      })
       return;
     }
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Invalid email address');
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      })
       return;
     }
     const cookies = await getCookies('refreshToken');
@@ -113,7 +121,11 @@ export function DataTable<TData, TValue>({
       if (!response.ok) {
         throw new Error(data.message);
       } else {
-        toast.success("Customer added successfully");
+        toast({
+          title: "Customer added",
+          description: "Customer has been added successfully",
+          variant: "success",
+        })
       }
       setCustomerName("");
       setPhoneNumber("");
@@ -126,15 +138,23 @@ export function DataTable<TData, TValue>({
         revenue: 0,
         customerType: "Visting customer",
       });
-    }catch(e){
-      toast.error("Failed to add customer: " + e);
+    }catch(e: any){
+      toast({
+        title: "Failed to add customer",
+        description: e.message,
+        variant: "destructive",
+      })
     }
 
   };
   const handleDelete = async () => {
    const selectedRows = table.getFilteredSelectedRowModel().rows;
    if (selectedRows.length === 0) {
-     toast.error("No rows selected");
+     toast({
+        title: "No customers selected",
+        description: "Please select customers to delete",
+        variant: "destructive",
+     })
      return;
    }
    const cookies = await getCookies('refreshToken');
@@ -151,15 +171,27 @@ export function DataTable<TData, TValue>({
       });
       const data = await response.json();
       if (!response.ok) {
-        toast.error("Failed to delete customer: " + data.message);
+        toast({
+          title: "Failed to delete customer",
+          description: data.message,
+          variant: "destructive",
+        })
         return;
       }
       onDelete?.(customer);
     }));
     table.setRowSelection({}); 
-    toast.success("Customer deleted successfully");
-   }catch(e){
-     toast.error("Failed to delete customer: " + e);
+    toast({
+      title: "Customers deleted",
+      description: "Customers have been deleted successfully",
+      variant: "success",
+    })
+   }catch(e:any){
+     toast({
+      title: "Failed to delete customers",
+      description: e.message,
+      variant: "destructive",
+     })
    }
   }
 
