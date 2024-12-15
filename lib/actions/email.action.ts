@@ -15,7 +15,6 @@ export async function sendVouchers(listEmail: string[], listVoucher: string[]) {
 
 		const result = await response.json()
 		// revalidatePath('/admin/voucher')
-		console.log(result)
     if (!response.ok) {
       throw new Error('Failed to send vouchers')
     }
