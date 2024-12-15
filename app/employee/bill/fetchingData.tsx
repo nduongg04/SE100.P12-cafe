@@ -39,7 +39,7 @@ export async function getData(): Promise<Bill[]> {
                 productPrice: info.productPrice,
             })),
         }));
-        return fetchedBills;;
+        return fetchedBills.reverse();
     }catch(e){
         toast.error("Failed to fetch data: " + e);
         return [];
