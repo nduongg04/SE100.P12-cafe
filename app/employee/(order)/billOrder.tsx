@@ -255,7 +255,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     {
       header: "STT",
       accessorFn: (_, index) => index + 1, // Tự động đánh số thứ tự
-      cell: ({ getValue }) => <>{getValue()}</>, // Hiển thị số thứ tự
+      cell: ({ getValue }) => {getValue()}, // Hiển thị số thứ tự
     },
     {
       header: "Tên món",
