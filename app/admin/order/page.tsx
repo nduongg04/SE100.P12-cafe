@@ -49,7 +49,6 @@ export default function OrderPage({}: Props) {
       setProducts(products);
       setIsLoadingMenu(false);
     }
-    console.log("check");
     fetchData();
   }, []);
   const updateStatusTable = (tableId:number,status:string) => {

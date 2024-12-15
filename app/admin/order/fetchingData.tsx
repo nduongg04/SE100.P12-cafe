@@ -2,8 +2,20 @@ import { Product } from "./menuOrder";
 import { Category } from "./menuOrder";
 import { getCookies } from "@/lib/action";
 import { toast } from "sonner";
-import { Customer } from "../customer/columns";
-
+export type Customer = {
+  customerId: string;
+  customerType: CustomerType | null;
+  customerName: string;
+  phoneNumber: string;
+  email: string;
+  revenue: number;
+};
+export type CustomerType = {
+  customerTypeId: string;
+  customerTypeName: string;
+  boundaryRevenue: number;
+  discountValue: number;
+};
 
 export async function getCategoryData(): Promise<Category[]> {
     const cookies = await getCookies("refreshToken");

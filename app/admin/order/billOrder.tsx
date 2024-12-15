@@ -34,7 +34,7 @@ import { Trash2, Plus, Minus, SearchCheck, CircleX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getCustomerData } from "@/app/employee/customer/fetchingData";
-import { Customer } from "@/app/employee/customer/columns";
+import { Customer } from "./fetchingData";
 import { searchVoucherByCode, updateTableStatus } from "./fetchingData";
 import { toast } from "sonner";
 import Loading from "react-loading";
@@ -42,6 +42,8 @@ import { getCookies } from "@/lib/action";
 import { User } from "@/app/login/page";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getAllVoucher } from "@/app/employee/(order)/fetchingData";
 
 type Props = {
   data: PrdBill[];
@@ -55,6 +57,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [listCustomer, setListCustomer] = useState<Customer[]>([]);
+  const [listVoucher, setListVoucher] = useState<VoucherApi[]>([]);
   const [voucher, setVoucher] = useState<VoucherApi | null>(null);
   const [searchVoucher, setSearchVoucher] = useState<string>("");
   const [searchCustomer, setSearchCustomer] = useState<string>("");
@@ -67,6 +70,11 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
   const [openPayType, setOpenPayType] = useState<boolean>(false);
   const [loading,setLoading]= useState(false);
   const [finishedBill,setFinishedBill]= useState(false);
+  const [suggestCustomer,setSuggestCustomer]= useState<Customer[]>([]);
+  const [openSuggestCustomer,setOpenSuggestCustomer]= useState(false);
+  const [openSuggestVoucher,setOpenSuggestVoucher]= useState(false);
+  const [suggestVoucher,setSuggestVoucher]= useState<VoucherApi[]>([]);
+
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -76,6 +84,22 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       }
       const datas = await getCustomerData();
       setListCustomer(datas);
+      const vouchers = await getAllVoucher();
+      const filteredVouchers = vouchers.filter((item)=>{
+         const [dayExpired, monthExpired, yearExpired] = item.expiredDate.split("/").map(Number);
+         const expiredDate = new Date(yearExpired, monthExpired - 1, dayExpired);
+         const [dayCreate, monthCreate, yearCreate] = item.createdDate
+           .split("/")
+           .map(Number);
+         const createDate = new Date(yearCreate, monthCreate - 1, dayCreate);
+         const currentDate = new Date();
+         if(item.maxApply>0 && expiredDate>currentDate && createDate<currentDate){
+         
+          return item;
+        }
+      });
+      setListVoucher(filteredVouchers);
+      console.log(filteredVouchers);
     };
     fetchData();
   }, []);
@@ -137,7 +161,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     } else {
       console.error("Content không tồn tại.");
     }
-    resetData();
+    setOpenBill(false);
   };
   const handleUpdateTableStatus = async (tableId:number,status:string) => {
     const result = await updateTableStatus(tableId,status);
@@ -215,26 +239,53 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       ),
     );
   };
-  const handleSearchCustomer = () => {
-    const find = listCustomer.find(
-      (item) =>
-        item.phoneNumber === searchCustomer || item.email === searchCustomer,
-    );
-    if (!find) {
-      toast.error("Customer is not found");
-      return;
-    } else {
-      setCustomer(find as Customer);
-    }
+  const handleChooseCustomer = (customer:Customer) => {
+    setCustomer(customer);
+    setSearchCustomer("");
+    setOpenSuggestCustomer(false);
+    setSuggestCustomer([]);
   };
-  const handleSearchVoucher = async () => {
-    setLoadingVoucher(true);
-    const find = await searchVoucherByCode(searchVoucher);
-    if (find) {
-      setVoucher(find as VoucherApi);
+  useEffect(()=>{
+    if(searchCustomer.length>0){
+      const find = listCustomer.filter(
+        (item) =>
+          item.phoneNumber.includes(searchCustomer) ||
+          item.email.includes(searchCustomer),
+      );
+      if (!find) {
+        setSuggestCustomer([]);
+      } else {
+        setSuggestCustomer(find);
+      }
+      setOpenSuggestCustomer(true);
     }
-    setLoadingVoucher(false);
-  };
+    else{
+      setOpenSuggestCustomer(false);
+      setSuggestCustomer([]);
+    }
+  },[searchCustomer])
+  const handleChooseVoucher = (voucher:VoucherApi) => {
+    setVoucher(voucher);
+    setSearchVoucher("");
+    setOpenSuggestVoucher(false);
+    setSuggestVoucher([]);
+  }
+  useEffect(()=>{
+    if(searchVoucher.length>0){
+      const find = listVoucher.filter((item)=>item.voucherCode.includes(searchVoucher));
+      if(find.length>0){
+        setSuggestVoucher(find);
+      }
+      else{
+        setSuggestVoucher([]);
+      }
+      setOpenSuggestVoucher(true);
+    }
+    else{
+      setSuggestVoucher([]);
+      setOpenSuggestVoucher(false);
+    }
+  },[searchVoucher])
   const columns: ColumnDef<PrdBill>[] = [
     {
       id: "action",
@@ -318,8 +369,12 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
   return (
     <div className="ml-2 mt-2 h-[98%] rounded-lg bg-white px-3 pt-3 shadow-sm">
       <div className="flex justify-between">
-        <div className="flex items-center">
+        <div
+          className="relative flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
           <h2>Khách hàng :</h2>
+
           {customer ? (
             <>
               <p className="ml-2 border-b border-gray-400 font-semibold">
@@ -338,19 +393,49 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
               <Input
                 value={searchCustomer}
                 onChange={(e) => setSearchCustomer(e.target.value)}
+                onFocus={() => {
+                  if (suggestCustomer.length > 0) {
+                    setOpenSuggestCustomer(true);
+                  }
+                }}
+                onBlur={() => {
+                  setOpenSuggestCustomer(false);
+                }}
                 className="ml-3 h-8 w-[8.5rem]"
               />
-              <Button
-                variant="ghost"
-                className="ml-2 p-1"
-                onClick={handleSearchCustomer}
-              >
-                <SearchCheck color="gray" />
-              </Button>
+              <SearchCheck color="gray" className="ml-2" />
             </>
           )}
+          {openSuggestCustomer && (
+            <div className="absolute -left-1 top-10 z-50 w-72 rounded-md border border-gray-200 bg-white shadow-md">
+              <ScrollArea className="h-[300px]">
+                {suggestCustomer.length > 0 ? (
+                  suggestCustomer.map((item) => (
+                    <div
+                      key={item.customerId}
+                      className="cursor-pointer border-b border-gray-200 px-4 py-1 hover:bg-gray-100"
+                      onMouseDown={() => handleChooseCustomer(item)}
+                    >
+                      <p className="font-semibold">{item.customerName}</p>
+                      <p className="-mt-[2px] text-sm text-gray-500">
+                        {item.phoneNumber}
+                      </p>
+                      <p className="-mt-[2px] text-sm text-gray-500">
+                        {item.email}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="mt-[40%] text-center font-semibold">
+                    Không tìm thấy khách hàng
+                  </p>
+                )}
+              </ScrollArea>
+            </div>
+          )}
         </div>
-        <div className="flex items-center">
+
+        <div className="flex items-center relative">
           <h2>Voucher :</h2>
           {voucher ? (
             <>
@@ -370,26 +455,42 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
               <Input
                 value={searchVoucher}
                 onChange={(e) => setSearchVoucher(e.target.value)}
+                onFocus={() => {
+                  if (suggestVoucher.length >0) {
+                    setOpenSuggestVoucher(true);
+                  }
+                }}
+                onBlur={() => {
+                  setOpenSuggestVoucher(false);
+                }}
                 className="ml-3 h-8 w-[8.5rem]"
               />
-              {loadingVoucher ? (
-                <Loading
-                  type="spin"
-                  color="gray"
-                  height={20}
-                  width={20}
-                  className="ml-5"
-                />
-              ) : (
-                <Button
-                  variant="ghost"
-                  className="ml-2 p-1"
-                  onClick={handleSearchVoucher}
-                >
-                  <SearchCheck color="gray" />
-                </Button>
-              )}
+              <SearchCheck color="gray" className="ml-2" />
             </>
+          )}
+          {openSuggestVoucher && (
+            <div className="absolute -left-1 top-10 z-50 w-64 rounded-md border border-gray-200 bg-white shadow-md">
+              <ScrollArea className="h-[300px]">
+                {suggestVoucher.length > 0 ? (
+                  suggestVoucher.map((item) => (
+                    <div
+                      key={item.voucherID}
+                      className="cursor-pointer border-b border-gray-200 px-4 py-1 hover:bg-gray-100"
+                      onMouseDown={() => handleChooseVoucher(item)}
+                    >
+                      <p className="font-semibold">{item.voucherCode}</p>
+                      <p className="-mt-[2px] text-sm text-gray-500">
+                        - {item.voucherValue} {item.voucherType.voucherTypeID == 1 ? "%" : "đ"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="mt-[40%] text-center font-semibold">
+                    Không tìm thấy voucher
+                  </p>
+                )}
+              </ScrollArea>
+            </div>
           )}
         </div>
       </div>
@@ -513,7 +614,11 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           "Thanh toán"}
         </Button> */}
         <Button
-          onClick={() => {if(data.length!=0){setOpenPayType(true)}}}
+          onClick={() => {
+            if (data.length != 0) {
+              setOpenPayType(true);
+            }
+          }}
           className="bg-green-500 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
         >
           {loading ? (
@@ -535,39 +640,40 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           <p className="h-auto overflow-visible text-center text-xl font-semibold">
             Chọn phương thức thanh toán
           </p>
-          <DialogFooter >
-            <div className="flex justify-center gap-4 w-full mt-1">
-
+          <DialogFooter>
+            <div className="mt-1 flex w-full justify-center gap-4">
               <Button
-          onClick={() => addBill(1)}
-          className="bg-blue-400 transition duration-150 ease-in-out hover:bg-blue-300 active:scale-95 active:shadow-lg"
-        >
-          {loading?
-            <Loading
-             type="spin"
-             color="white"
-             height={20}
-             width={20}
-             className="mx-3"
-           />:
-          "Chuyển khoản"}
-        </Button>
-            <Button
-              onClick={() => addBill(2)}
-              className="bg-green-500 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
-            >
-              {loading ? (
-                <Loading
-                  type="spin"
-                  color="white"
-                  height={20}
-                  width={20}
-                  className="mx-3"
-                />
-              ) : (
-                "Tiền mặt"
-              )}
-            </Button>
+                onClick={() => addBill(1)}
+                className="bg-blue-400 transition duration-150 ease-in-out hover:bg-blue-300 active:scale-95 active:shadow-lg"
+              >
+                {loading ? (
+                  <Loading
+                    type="spin"
+                    color="white"
+                    height={20}
+                    width={20}
+                    className="mx-3"
+                  />
+                ) : (
+                  "Chuyển khoản"
+                )}
+              </Button>
+              <Button
+                onClick={() => addBill(2)}
+                className="bg-green-500 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
+              >
+                {loading ? (
+                  <Loading
+                    type="spin"
+                    color="white"
+                    height={20}
+                    width={20}
+                    className="mx-3"
+                  />
+                ) : (
+                  "Tiền mặt"
+                )}
+              </Button>
             </div>
           </DialogFooter>
         </DialogContent>
