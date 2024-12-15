@@ -37,7 +37,7 @@ const BillDialog = ({bill, onUpdate} : {bill:Bill, onUpdate: (status: "Pending"|
         const response = await fetch(`${url}/bill/updatestatus/${bill.id}`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token?.value}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({status: currentStatus })
