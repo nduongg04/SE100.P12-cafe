@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { TriangleAlert } from "lucide-react"
 import * as React from "react"
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 interface StaffData {
   staffId: string;
   staffName: string
@@ -95,19 +95,35 @@ export function DataTable<TData, TValue>({
   
   const addStaff = async () => {
     if(staffName==='' || username==='' || password===''){
-      toast.error('Please fill in all fields');
+      toast({
+        title: 'Failed to add staff',
+        description: 'Please fill in all fields',
+        variant: 'destructive'
+      })
       return;
     }
     if(staffName.length<10){
-      toast.error('Full name must be at least 10 characters');
+      toast({
+        title: 'Failed to add staff',
+        description: 'Full name must be at least 10 characters',
+        variant: 'destructive'
+      })
       return;
     }
     if(username.length<10){
-      toast.error('Account must be at least 10 characters');
+      toast({
+        title: 'Failed to add staff',
+        description: 'Username must be at least 10 characters',
+        variant: 'destructive'
+      })
       return;
     }
     if(password.length<5){
-      toast.error('Password must be at least 5 characters');
+      toast({
+        title: 'Failed to add staff',
+        description: 'Password must be at least 5 characters',
+        variant: 'destructive'
+      })
       return;
     }
     const cookies = await getCookies('refreshToken');
@@ -123,24 +139,41 @@ export function DataTable<TData, TValue>({
         body: JSON.stringify({ staffName, username, password, isAdmin })
       });
       if (!response.ok) {
-        toast.error('Failed to add staff');
-        return;
+        toast({
+          title: 'Failed to add staff',
+          description: 'Please try again later',
+          variant: 'destructive'
+        })
+        const data = await response.json();
+        throw new Error(data?.message);
       }
       const result = await response.json();
-      toast.success('Staff added successfully');
+      toast({
+        title: 'Add staff successfully',
+        description: 'Staff has been added',
+        variant: 'success'
+      })
       setIsAdmin(true);
       setStaffName('');
       setUsername('');
       setPassword('');
       onAdd(result.data);
-    }catch(e){
-      toast.error('Failed to add staff: '+ e);
+    }catch(e:any){
+      toast({
+        title: 'Failed to add staff',
+        description: e.message,
+        variant: 'destructive'
+      })
     }
   }
   const deleteStaff = async () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     if (selectedRows.length === 0) {
-      toast.error('No staff selected');
+      toast({
+        title: 'Failed to delete staff',
+        description: 'Please select at least one staff',
+        variant: 'destructive'
+      })
       return;
     }
     selectedRows.values;
@@ -162,12 +195,20 @@ export function DataTable<TData, TValue>({
           throw new Error('Failed to delete staff: '+ staff.staffId);
         }
         table.setRowSelection({}); 
-        toast.success('Staff deleted successfully');
+        toast({
+          title: 'Delete staff successfully',
+          description: 'Staff has been deleted',
+          variant: 'success'
+        })
         onDelete(staff);
       }))       
     }
-    catch(err){
-      toast.error('Failed to delete staff: '+ err);
+    catch(err:any){
+     toast({
+        title: 'Failed to delete staff',
+        description: err.message,
+        variant: 'destructive'
+     })
     }
   }
   return (

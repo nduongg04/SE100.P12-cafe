@@ -25,7 +25,7 @@ import {
 
 import * as React from "react"
 import { dateRangeFilter, idFilter } from "./columns";
-import { toast } from "sonner"
+import { toast } from "@/hooks/use-toast";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];

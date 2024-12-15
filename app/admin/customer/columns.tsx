@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { getCookies } from "@/lib/action";
-import {toast} from "sonner";
+import {toast} from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, ArrowUpDown } from "lucide-react"
 import {
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { set } from "date-fns";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -85,28 +86,42 @@ export const columns:(
         const [customerName, setCustomerName] = React.useState(row.original.customerName);
         const [phoneNumber, setPhoneNumber] = React.useState(row.original.phoneNumber);
         const [email, setEmail] = React.useState(row.original.email);
+        const [isLoading, setIsLoading] = React.useState(false);
         const customer = row.original
         const handleSave = async () => {
           if (customerName == customer.customerName && phoneNumber == customer.phoneNumber&& email == customer.email){
-            toast.error("No changes detected")
+            toast({
+              title: 'No changes',
+              description: 'No changes have been made',
+              variant: 'default'
+            })
             return
           }
           // Validate phone number
           const phoneRegex = /^0\d{9}$/;
           if (!phoneRegex.test(phoneNumber)) {
-            toast.error('Phone number must be 10 digits and start with 0');
+            toast({
+              title: 'Invalid phone number',
+              description: 'Phone number must start with 0 and have 10 digits',
+              variant: 'destructive'
+            })
             return;
           }
           // Validate email
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(email)) {
-            toast.error('Invalid email address');
+            toast({
+              title: 'Invalid email',
+              description: 'Please enter a valid email',
+              variant: 'destructive'
+            })
             return;
           }
           try{
             const cookies = await getCookies('refreshToken');
             const token = cookies?.value;
             const url = process.env.BASE_URL;
+            setIsLoading(true);
             const response = await fetch(`${url}/customer/update/${customer.customerId}`, {
               method: "PUT",
               headers: {
@@ -118,15 +133,29 @@ export const columns:(
             console.log(response)
             const data = await response.json()
             if (!response.ok) {
-              toast.error("Failed to save changes: " + data.message)
+              toast({
+                title: 'Failed to save changes',
+                description: data.message,
+                variant: 'destructive'
+              })
+              setIsLoading(false);
               return
             }
           }catch(e){
-            toast.error("Failed to save changes: "+ e)
+            toast({
+              title: 'Failed to save changes',
+              description: 'Please try again later',
+              variant: 'destructive'
+            })
             return;
           }
 
-          toast.success("Changes saved")
+          toast({
+            title: 'Changes saved',
+            description: 'Customer information has been updated',
+            variant: 'success'
+          })
+          setIsLoading(false);
           onUpdate(customer.customerId, customerName, phoneNumber, email)
         }
         return (
@@ -171,7 +200,7 @@ export const columns:(
                 </table>            
               </div>
               <DialogFooter>
-                <Button type="submit" className="bg-green-600 hover:bg-green-500" onClick={handleSave}>Save changes</Button>
+                <Button type="submit" className="bg-green-600 hover:bg-green-500" disabled={isLoading} onClick={handleSave}>{isLoading?"Saving...": "Save changes"}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -266,23 +295,37 @@ export const customerTypeColumns: (
       const [customerTypeName, setCustomerTypeName] = React.useState(row.original.customerTypeName);
       const [boundaryRevenue, setBoundaryRevenue] = React.useState(row.original.boundaryRevenue);
       const [discountValue, setDiscountValue] = React.useState(row.original.discountValue);
+      const [isLoading, setIsLoading] = React.useState(false);
       const handleSave = async () => {
         if (customerTypeName == row.original.customerTypeName && boundaryRevenue == row.original.boundaryRevenue && discountValue == row.original.discountValue){
-          toast.error("No changes detected")
+          toast({
+            title: 'No changes',
+            description: 'No changes have been made',
+            variant: 'default'
+          })
           return
         }
         if(boundaryRevenue < 0){
-          toast.error('Minium spending must be greater than 0');
+          toast({
+            title: 'Invalid minimum spending',
+            description: 'Minimum spending must be greater than 0',
+            variant: 'destructive'
+          })
           return;
         }
         if(discountValue < 0 || discountValue > 100){
-          toast.error('Discount must be greater than 0 and less than 100');
+         toast({
+            title: 'Invalid discount value',
+            description: 'Discount value must be between 0 and 100',
+            variant: 'destructive'
+         })
           return;
         }
         try{
           const cookies = await getCookies('refreshToken');
           const token = cookies?.value;
           const url = process.env.BASE_URL;
+          setIsLoading(true);
           const response = await fetch(`${url}/customertype/update/${row.original.customerTypeId}`, {
             method: "PUT",
             headers: {
@@ -297,16 +340,32 @@ export const customerTypeColumns: (
           })
           const data = await response.json()
           if (!response.ok) {
-            toast.error("Failed to save changes: " + data.message)
+            toast({
+              title: 'Failed to save changes',
+              description: data.message,
+              variant: 'destructive'
+            })
+            setIsLoading(false);
             return
           }
         }catch(e){
-          toast.error("Failed to save changes: ")
+          toast({
+            title: 'Failed to save changes',
+            description: 'Please try again later',
+            variant: 'destructive'
+          })
+          setIsLoading(false);
         }
 
-        toast.success("Changes saved")
+        toast({
+          title: 'Changes saved',
+          description: 'Membership information has been updated',
+          variant: 'success'
+        })
+        setIsLoading(false);
         onUpdate(row.original.customerTypeId, customerTypeName, boundaryRevenue, discountValue)
       }
+
       const customerType = row.original
       return (
         <Dialog>
@@ -354,7 +413,7 @@ export const customerTypeColumns: (
               </table>            
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-green-600 hover:bg-green-500" onClick={handleSave}>Save changes</Button>
+              <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-500" onClick={handleSave}>{isLoading?"Saving..": "Save changes"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -11,7 +11,7 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
   import { Fragment } from "react"
-  import { toast } from "sonner";
+import {toast} from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import {
     Table,
@@ -44,18 +44,34 @@ const BillDialog = ({bill, onUpdate} : {bill:Bill, onUpdate: (status: "Pending"|
         });
 
         if (!response.ok) {
-          toast.error('Failed to update status');
+          toast({
+            title: 'Failed to update status',
+            description: 'Please try again later',
+            variant: 'destructive'
+          })
+          return
         }
         bill.status = currentStatus;
         const result = await response.json();
         onUpdate(currentStatus);
-        toast.success("Status updated successfully");
+        toast({
+          title: 'Update status successfully',
+          description: `Bill #${bill.id} status has been updated to ${currentStatus}`,
+          variant: 'success'
+        })
       } catch (error) {
-        toast.error('Failed to update status: '+ error);
+        toast({
+          title: 'Failed to update status',
+          description: 'Please try again later',
+          variant: 'destructive'
+        })
       }
     } else {
-      toast.info('No changes detected');
-    }
+      toast({
+        title: 'No changes',
+        description: 'No changes have been made',
+        variant: 'default'
+    })}
   };
 
   return (

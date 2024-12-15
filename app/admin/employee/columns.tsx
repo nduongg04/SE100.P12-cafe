@@ -2,7 +2,7 @@
 
 import { getCookies } from "@/lib/action";
 import * as React from "react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, ArrowUpDown } from "lucide-react"
 import {
@@ -62,11 +62,19 @@ export const columns: (
 
         const handleSave = async () => {
           if (staffName == staff.staffName && username == staff.username){
-            toast.info('No changes detected');
+            toast({
+              title: 'No changes',
+              description: 'Please make some changes before saving',
+              variant: 'default'
+            })
             return;
           }
           if(staffName.length <10 || username.length < 10){
-            toast.error('Full name and username must be at least 10 characters');
+            toast({
+              title: 'Invalid input',
+              description: 'Please enter valid input',
+              variant: 'destructive'
+            })
             return;
           }
           const cookies = await getCookies('refreshToken');
@@ -83,14 +91,26 @@ export const columns: (
                 body: JSON.stringify({ staffName: staffName, username: username})
               });
               if (!response.ok) {
-                toast.error('Failed to update staff: ');
+                toast({
+                  title: 'Failed to update staff',
+                  description: 'Please try again later',
+                  variant: 'destructive'
+                })
                 return;
               }
               const result = await response.json();
               onUpdate(staff.staffId, staffName, username);
-              toast.success("Staff updated successfully");
+              toast({
+                title: 'Update staff successfully',
+                description: `Staff #${staff.staffId} has been updated`,
+                variant: 'success'
+              })
             } catch (error) {
-              toast.error('Failed to update staff: '+ error);
+              toast({
+                title: 'Failed to update staff',
+                description: 'Please try again later',
+                variant: 'destructive'
+              })
             }
           }
         };
