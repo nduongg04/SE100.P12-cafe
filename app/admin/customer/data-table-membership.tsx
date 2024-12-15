@@ -1,6 +1,6 @@
 "use client";
 import { getCookies} from "@/lib/action";
-import {toast} from "sonner";
+import {toast} from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -68,11 +68,19 @@ export function DataTableMemberShip<TData, TValue>({
   // Custom filter function for date range
   const handleAdd = async() => {
     if(customerTypeName === "" || discountValue === 0 || boundaryRevenue === 0){
-      toast.error("Please fill all the fields");
+      toast({
+        title: 'Failed to add new membership',
+        description: 'Please fill in all the fields',
+        variant: 'destructive'
+      })
       return;
     }
     if(discountValue > 100 || discountValue < 0){
-      toast.error("Discount value must be between 0 and 100");
+      toast({
+        title: 'Failed to add new membership',
+        description: 'Discount value must be between 0 and 100',
+        variant: 'destructive'
+      })
       return;
     }
     const cookies = await getCookies('refreshToken');
@@ -98,16 +106,28 @@ export function DataTableMemberShip<TData, TValue>({
         discountValue: discountValue,
         boundaryRevenue: boundaryRevenue,
       });
-      toast.success("Successfully added new membership");
+      toast({
+        title: 'Successfully added new membership',
+        description: 'New membership has been added',
+        variant: 'success'
+      })
     }catch(e){
-      toast.error("Failed to add new customer type: " + e);
+      toast({
+        title: 'Failed to add new membership',
+        description: "",
+        variant: 'destructive'
+      })
       return;
     }
   }
   const handleDelete = async () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     if (selectedRows.length === 0) {
-      toast.error("No row selected");
+      toast({
+        title: 'Failed to delete membership',
+        description: 'Please select membership to delete',
+        variant: 'destructive'
+      })
       return;
     }
     const customerType = selectedRows.map((row) => row.original);
@@ -132,9 +152,17 @@ export function DataTableMemberShip<TData, TValue>({
           onDelete?.(customerType);
         })
       );
-      toast.success("Successfully deleted membership");
-    }catch(error){
-      toast.error("Failed to delete data: " + error);
+      toast({
+        title: 'Successfully deleted membership',
+        description: 'Membership has been deleted',
+        variant: 'success'
+      })
+    }catch(error: any){
+      toast({
+        title: 'Failed to delete membership',
+        description: error.message,
+        variant: 'destructive'
+      })
     }
     table.setRowSelection({});
   }

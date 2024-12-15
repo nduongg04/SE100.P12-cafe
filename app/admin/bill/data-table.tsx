@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/table"
 
 import * as React from "react"
-import { dateRangeFilter } from "./columns";
-import { toast } from "sonner"
+import { dateRangeFilter, idFilter } from "./columns";
+import { toast } from "@/hooks/use-toast";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
@@ -66,6 +66,7 @@ export function DataTable<TData, TValue>({
     },
     filterFns: {
       dateRangeFilter,
+      idFilter
     },
   });
 
@@ -87,6 +88,7 @@ export function DataTable<TData, TValue>({
           value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
           {
+            console.log("Column id: ", table.getColumn("id"))
             table.getColumn("id")?.setFilterValue(event.target.value)
           }
           }

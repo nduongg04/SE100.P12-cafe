@@ -11,7 +11,7 @@ import { set } from "date-fns";
 const BillPage = () => {
     const [data, setData] = React.useState<Bill[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
-    const handleUpdate = (billId:string, newStatus: "Pending"|"Successful") => {
+    const handleUpdate = (billId:number, newStatus: "Pending"|"Successful") => {
         setData((prevData) =>
           prevData.map((bill) =>
             bill.id === billId ? { ...bill, status: newStatus } : bill
