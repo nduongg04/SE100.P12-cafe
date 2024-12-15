@@ -1,6 +1,7 @@
 "use client";
 
 import VoucherForm, { formSchema } from "@/components/admin/VoucherForm";
+import { SendVouchersForm } from "@/components/admin/SendVouchersForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,8 +37,9 @@ import {
   getAllVouchers,
   updateVoucher,
 } from "@/lib/actions/voucher.action";
+import { getAllCustomers, Customer } from "@/lib/actions/customer.action";
 import { format } from "date-fns";
-import { Pencil, Plus, Search, TriangleAlert, X } from "lucide-react";
+import { Pencil, Plus, Search, Send, TriangleAlert, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from "react";
 import { z } from "zod";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -58,27 +60,29 @@ export default function VoucherManagement() {
   const [editOrAdd, setEditOrAdd] = useState<"edit" | "add">("add");
   const [formMessage, setFormMessage] = useState<string>("");
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingVouchers, setIsLoadingVouchers] = useState(true);
+  const [isSendVouchersDialogOpen, setIsSendVouchersDialogOpen] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
-    const fetchVouchers = async () => {
+    const fetchData = async () => {
       try {
-        const fetchedVouchers = await getAllVouchers();
+        const [fetchedVouchers, fetchedCustomers] = await Promise.all([
+          getAllVouchers(),
+          getAllCustomers()
+        ]);
         if (fetchedVouchers) {
           setVouchers(fetchedVouchers);
-        } else {
-          toast({
-            title: "Failed to fetch vouchers",
-            description: "Please try again",
-            variant: "destructive",
-          });
+        }
+        if (fetchedCustomers) {
+          setCustomers(fetchedCustomers);
         }
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to fetch vouchers",
+          description: "Failed to fetch data",
           variant: "destructive",
         });
       } finally {
@@ -86,7 +90,7 @@ export default function VoucherManagement() {
       }
     };
 
-    fetchVouchers();
+    fetchData();
   }, []);
 
   const filteredVouchers = useMemo(() => {
@@ -136,7 +140,7 @@ export default function VoucherManagement() {
         createdAt: adjustToLocalDate(values.createdAt),
         expiredAt: adjustToLocalDate(values.expiredAt),
       };
-      
+
       const newVoucher = await createVoucher(updatedValues);
       if (newVoucher) {
         setVouchers((prev) => [...prev, newVoucher]);
@@ -169,7 +173,7 @@ export default function VoucherManagement() {
         createdAt: adjustToLocalDate(values.createdAt),
         expiredAt: adjustToLocalDate(values.expiredAt),
       };
-      
+
       const updatedVoucher = await updateVoucher(updatedValues);
       if (updatedVoucher) {
         setVouchers((prev) =>
@@ -269,7 +273,25 @@ export default function VoucherManagement() {
               />
             </DialogContent>
           </Dialog>
-
+          <Button
+            className="bg-[#00B074] text-white hover:bg-[#00956A]"
+            onClick={() => setIsSendVouchersDialogOpen(true)}
+          >
+            <Send className="mr-2 h-4 w-4" />
+            Send Vouchers
+          </Button>
+          <Dialog open={isSendVouchersDialogOpen} onOpenChange={setIsSendVouchersDialogOpen}>
+            <DialogContent className="sm:max-w-[425px] h-full">
+              <DialogHeader>
+                <DialogTitle>Send Vouchers to Customers</DialogTitle>
+              </DialogHeader>
+              <SendVouchersForm
+                vouchers={vouchers}
+                customers={customers}
+                onClose={() => setIsSendVouchersDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -362,3 +384,4 @@ export default function VoucherManagement() {
     </div>
   );
 }
+
