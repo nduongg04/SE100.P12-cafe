@@ -22,7 +22,7 @@ const LoginPage = () => {
     const passwordInput = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isIncorrect, setIsIncorrect] = useState(false);
-    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseURL = process.env.BASE_URL;
     async function onClick() {
         if (isLoading) {
             return;
