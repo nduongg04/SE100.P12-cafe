@@ -16,6 +16,38 @@ export type CustomerType = {
   boundaryRevenue: number;
   discountValue: number;
 };
+type BillDetailDTO = {
+  productName: string;
+  productPrice: number;
+  productCount: number;
+  totalPriceDtail: number;
+};
+
+
+type Staff = {
+  staffId: number;
+  staffName: string;
+  isAdmin: boolean;
+  username: string;
+};
+
+type PayType = {
+  payTypeId: number;
+  payTypeName: string;
+};
+
+export type BillApi = {
+  billDetailDTOs: BillDetailDTO[];
+  billId: number;
+  status: string;
+  totalPrice: number;
+  customer: Customer|null;
+  createdAt: string;
+  voucherValue: number|null;
+  voucherTypeIndex: number|null;
+  staff: Staff|null;
+  payType: PayType|null;
+};
 
 export async function getCategoryData(): Promise<Category[]> {
     const cookies = await getCookies("refreshToken");
@@ -42,6 +74,41 @@ export async function getCategoryData(): Promise<Category[]> {
         toast.error("Failed to fetch data: " + e);
         return [];
     }
+}
+export async function getAllVoucher(): Promise<VoucherApi[]> {
+  const cookies = await getCookies("refreshToken");
+  const token = cookies?.value;
+  const url = process.env.BASE_URL;
+  try {
+    const response = await fetch(`${url}/voucher/getall`, {
+      method: "GET",
+      headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      toast.error("Failed to fetch data: " + data.message);
+      return [];
+    }
+    const vouchers: VoucherApi[] = data.map((voucher: any) => ({
+      voucherID: voucher.voucherID,
+      voucherCode: voucher.voucherCode,
+      voucherValue: voucher.voucherValue,
+      voucherType: {
+        voucherTypeID: voucher.voucherType.voucherTypeId,
+        typeName: voucher.voucherType.typeName,
+      },
+      maxApply: voucher.maxApply,
+      createdDate: voucher.createdDate,
+      expiredDate: voucher.expiredDate,
+    }));
+    return vouchers;
+  } catch (e) {
+    toast.error("Failed to fetch data: " + e);
+    return [];
+  }
 }
 
 export async function getProductData(): Promise<Product[]> {
@@ -220,3 +287,56 @@ export async function updateProductSoldOut(
     return false;
   }
 }
+export async function addBooking(
+  billId: number,
+  tableId:number,
+): Promise<boolean> {
+  const cookies = await getCookies("refreshToken");
+  const token = cookies?.value;
+  const url = process.env.BASE_URL;
+  try {
+    const response = await fetch(`${url}/table/booking`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+       tableId:tableId,
+       billId:billId
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      toast.error("Failed to add booking: " + data.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    toast.error("Failed to add booking: " + e);
+    return false;
+  }
+}
+export async function getBillBooking(tableId:number): Promise<BillApi|null> {
+  const cookies = await getCookies("refreshToken");
+  const token = cookies?.value;
+  const url = process.env.BASE_URL;
+  try{
+    const response = await fetch(`${url}/table/getBillFromBookingTable/${tableId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      toast.error("Failed to fetch data: " + data.message);
+      return null;
+    }
+    return data[0];
+  }catch(e){
+    toast.error("Failed to fetch data: " + e);
+    return null;
+  }
+}
+

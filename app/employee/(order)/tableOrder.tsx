@@ -18,8 +18,9 @@ type props={
   tables:Table[];
   isFetching:boolean;
   updateStatus: (tableId:number,status:string) => void;
+  showBill: (tableId:number) => Promise<void>;
 }
-export default function TableOrder({setTableOrder,tables,isFetching,updateStatus}:props) {
+export default function TableOrder({setTableOrder,tables,isFetching,updateStatus,showBill}:props) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -64,36 +65,8 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
     );
   }, [debouncedSearchTerm, tables, activeCategory]);
 
-
-  //   mutationFn: async (tableID: number) => {
-  //     const message = await deleteTable(tableID);
-  //     if (!message) {
-  //       throw new Error("Failed to delete table");
-  //     }
-  //     return message;
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ["tables"] });
-  //     toast({
-  //       title: "Success",
-  //       description: "Table deleted successfully",
-  //       variant: "success",
-  //     });
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to delete table",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
- 
   return (
-    <div className="mx-auto w-full max-w-7xl p-0 pt-4 bg-white rounded-lg border border-gray-200 shadow-md">
-      {/* <div className="space-y-4 text-center">
-        <h1 className="text-4xl font-bold text-gray-900">Table management</h1>
-      </div> */}
+    <div className="mx-auto w-full max-w-7xl p-0 pt-4 bg-white rounded-lg border border-gray-200 shadow-md pb-1">
       <div className="flex flex-col gap-4 px-4 xl:flex-row xl:space-y-0 shadow-sm pb-4">
         <div className="flex items-center flex-wrap justify-center gap-2 xl:justify-start">
           <TableTypeButton
@@ -148,6 +121,9 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
                       table={table}
                       bookTable={() => setTableOrder(table.tableID,table.tableNumber)}
                       unBooked={()=>updateStatus(table.tableID,"Not booked")}
+                      repairTable={()=>updateStatus(table.tableID,"Under repair")}
+                      repairedTable={()=>updateStatus(table.tableID,"Repaired")}
+                      showBill={()=>showBill(table.tableID)}
                     />
                   ))}
               </div>

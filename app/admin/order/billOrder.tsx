@@ -4,9 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  ColumnFiltersState,
   getFilteredRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { PrdBill } from "./menuOrder";
@@ -22,28 +20,20 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2, Plus, Minus, SearchCheck, CircleX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getCustomerData } from "@/app/employee/customer/fetchingData";
-import { Customer } from "./fetchingData";
-import { searchVoucherByCode, updateTableStatus } from "./fetchingData";
+import { getCustomerData } from "./fetchingData";
+import { addBooking, Customer } from "./fetchingData";
 import { toast } from "sonner";
 import Loading from "react-loading";
 import { getCookies } from "@/lib/action";
 import { User } from "@/app/login/page";
-import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getAllVoucher } from "@/app/employee/(order)/fetchingData";
+import { getAllVoucher } from "./fetchingData";
 
 type Props = {
   data: PrdBill[];
@@ -51,8 +41,9 @@ type Props = {
   tableOrder: number | null;
   updateStatus: (tableId:number,status:string) => void;
   resetData: () => void;
+  newCustomer: Customer|null;
 };
-export default function BillTable({ data, setData, tableOrder,updateStatus,resetData }: Props) {
+export default function BillTable({ data, setData, tableOrder,updateStatus,resetData,newCustomer }: Props) {
   const url = process.env.BASE_URL;
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -61,7 +52,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
   const [voucher, setVoucher] = useState<VoucherApi | null>(null);
   const [searchVoucher, setSearchVoucher] = useState<string>("");
   const [searchCustomer, setSearchCustomer] = useState<string>("");
-  const [loadingVoucher, setLoadingVoucher] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
   const [totalBill, setTotalBill] = useState<number>(0);
   const [idBill, setIdBill] = useState<number>(0);
@@ -103,6 +93,11 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     };
     fetchData();
   }, []);
+  useEffect(()=>{
+    if(newCustomer){
+      setListCustomer([...listCustomer,newCustomer]);
+    }
+  },[newCustomer])
   useEffect(() => {
     const total = data.reduce((acc, item) => acc + item.Total, 0);
     setTotal(total);
@@ -136,6 +131,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     setSearchCustomer("");
     setSearchVoucher("");
   };
+
   const handleGenerateImg = async () => {
     const content = document.querySelector(".dialog-content-to-pdf");
     if (content instanceof HTMLElement) {
@@ -163,11 +159,12 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     }
     setOpenBill(false);
   };
-  const handleUpdateTableStatus = async (tableId:number,status:string) => {
-    const result = await updateTableStatus(tableId,status);
-    if(result){
-      updateStatus(tableId,status);
-      toast.success("Update table status successfully");
+ 
+  const handleAddBooking=async (billId:number, tableId:number)=> { 
+    const res= await addBooking(billId,tableId)
+    if(res)
+    {
+      updateStatus(tableId,'Booked')
     }
   }   
   const addBill = async (payType: number) => {
@@ -190,6 +187,15 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       totalPriceDtail: item.Total,
     }));
     try {
+      console.log(JSON.stringify({
+        staffId: user?.staffId,
+        status: tableOrder?"Pending":"Successful",
+        totalPrice: totalBill,
+        customerId: customer?.customerId,
+        voucherId: voucher?.voucherID,
+        payTypeId: payType,
+        billDetails: billDetails,
+      }))
       const response = await fetch(`${url}/bill/create`, {
         method: "POST",
         headers: {
@@ -198,7 +204,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         },
         body: JSON.stringify({
           staffId: user?.staffId,
-          status: "Pending",
+          status: tableOrder?"Pending":"Successful",
           totalPrice: totalBill,
           customerId: customer?.customerId,
           voucherId: voucher?.voucherID,
@@ -207,11 +213,12 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         }),
       });
       const data = await response.json();
+      console.log(data)
       if (!response.ok) {
         throw new Error(data.message);
       } else {
         if(tableOrder){
-          await handleUpdateTableStatus(tableOrder, "Booked");
+          await handleAddBooking(data.data.billId,tableOrder)
         }
         setIdBill(data.data.billId);
         setOpenBill(true);
@@ -227,7 +234,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     setData((prevList) => prevList.filter((item) => item.ProductId !== id));
   };
   const handleQuantityChange = (index: number, quantity: number) => {
-    const updateList = [...data];
     if (quantity < 1) {
       quantity = 1;
     }
@@ -373,7 +379,8 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           className="relative flex items-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2>Khách hàng :</h2>
+          <h2>Customer :</h2>
+          
 
           {customer ? (
             <>
@@ -401,6 +408,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
                 onBlur={() => {
                   setOpenSuggestCustomer(false);
                 }}
+                
                 className="ml-3 h-8 w-[8.5rem]"
               />
               <SearchCheck color="gray" className="ml-2" />
@@ -592,12 +600,13 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           </p>
         </div>
       </div>
-      <div className="absolute bottom-6 right-6 mr-3 flex justify-end gap-2">
+      <div className="absolute bottom-6 right-8 mr-3 flex justify-end gap-2">
         <Button
           onClick={resetBill}
-          className="bg-red-500 transition duration-150 ease-in-out hover:bg-red-300 active:scale-95 active:shadow-lg"
+          disabled={data.length==0}
+          className="bg-red-500 transition duration-150 ease-in-out hover:bg-red-400 active:scale-95 active:shadow-lg"
         >
-          Kết thúc
+          Delete
         </Button>
         {/* <Button
           onClick={() => addBill(1)}
@@ -619,7 +628,8 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
               setOpenPayType(true);
             }
           }}
-          className="bg-green-500 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
+          disabled={data.length==0}
+          className="bg-green-500 px-5 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
         >
           {loading ? (
             <Loading
@@ -630,7 +640,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
               className="mx-3"
             />
           ) : (
-            "Thanh toán"
+            "Pay"
           )}
         </Button>
       </div>
@@ -638,7 +648,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       <Dialog open={openPayType} onOpenChange={setOpenPayType}>
         <DialogContent className="sm:max-w-[400px]">
           <p className="h-auto overflow-visible text-center text-xl font-semibold">
-            Chọn phương thức thanh toán
+          Please choose a payment method
           </p>
           <DialogFooter>
             <div className="mt-1 flex w-full justify-center gap-4">
@@ -655,12 +665,12 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
                     className="mx-3"
                   />
                 ) : (
-                  "Chuyển khoản"
+                  "Bank Transfer"
                 )}
               </Button>
               <Button
                 onClick={() => addBill(2)}
-                className="bg-green-500 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
+                className="bg-green-500 px-5 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
               >
                 {loading ? (
                   <Loading
@@ -671,7 +681,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
                     className="mx-3"
                   />
                 ) : (
-                  "Tiền mặt"
+                  "Cash"
                 )}
               </Button>
             </div>
