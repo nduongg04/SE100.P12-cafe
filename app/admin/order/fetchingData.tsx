@@ -164,7 +164,7 @@ export async function getCustomerData(): Promise<Customer[]> {
             email: customer.email,
             phoneNumber: customer.phoneNumber,
             revenue: customer.revenue,
-            customerType: customer.customerType==null? "Visting customer" : customer.customerType,
+            customerType: customer.customerType==null? null : customer.customerType,
         }));
         return customers;
     }catch(e){

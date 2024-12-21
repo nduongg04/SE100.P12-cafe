@@ -373,7 +373,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
-    <div className="ml-2 mt-2 h-[98%] rounded-lg bg-white px-3 pt-3 shadow-sm">
+    <div className="ml-2 mt-2 h-[98%] rounded-lg bg-white px-3 pt-3 shadow-sm relative">
       <div className="flex justify-between">
         <div
           className="relative flex items-center"
@@ -600,7 +600,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           </p>
         </div>
       </div>
-      <div className="absolute bottom-6 right-8 mr-3 flex justify-end gap-2">
+      <div className="absolute bottom-2 right-1 mr-3 flex justify-end gap-2">
         <Button
           onClick={resetBill}
           disabled={data.length==0}
@@ -608,20 +608,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         >
           Delete
         </Button>
-        {/* <Button
-          onClick={() => addBill(1)}
-          className="bg-blue-400 transition duration-150 ease-in-out hover:bg-blue-300 active:scale-95 active:shadow-lg"
-        >
-          {loading?
-            <Loading
-             type="spin"
-             color="white"
-             height={20}
-             width={20}
-             className="mx-3"
-           />:
-          "Thanh toán"}
-        </Button> */}
         <Button
           onClick={() => {
             if (data.length != 0) {
