@@ -26,6 +26,7 @@ export async function getData(): Promise<Bill[]> {
             id: item.billId,
             customer: item.customer ? item.customer.customerName : "Visiting Customer",
             voucherValue: item.voucherValue,
+            voucherTypeIndex: item.voucherTypeIndex,
             staff: item.staff ? item.staff.staffName : "Unknown Staff",
             payType: item.payType ? item.payType.payTypeName : "Unknown Pay Type",
             status: item.status,

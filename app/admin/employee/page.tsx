@@ -42,7 +42,7 @@ const EmployeePage = () => {
     }
     return (
         <div className="m-4">
-            <h2 className="text-xl font-semibold">Staff Management</h2>
+            <h2 className="text-3xl font-bold max-md:ml-4">Staff Management</h2>
             <div>
                 <DataTable 
                     columns={columns(handleUpdate)} 

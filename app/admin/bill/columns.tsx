@@ -45,6 +45,7 @@ export type Bill = {
   id: number
   customer: string
   voucherValue: number
+  voucherTypeIndex?: number
   staffId: string
   staff: string
   payType: string
@@ -180,7 +181,7 @@ export const columns: (onUpdate: (billId: number, newStatus: "Pending" | "Succes
             <DialogTrigger asChild>
               <Pencil className="size-4 cursor-pointer"/>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[925px]">
+            <DialogContent className="sm:max-w-[825px]">
               <DialogHeader>
               <DialogTitle>Edit bill status #{bill.id}</DialogTitle>
               <DialogDescription>
@@ -190,7 +191,7 @@ export const columns: (onUpdate: (billId: number, newStatus: "Pending" | "Succes
               <div className="grid gap-4 py-4 w-[100%]">
               <div className="flex justify-between">
                   <Label 
-                      >Staff: <span className="font-normal">{bill.staffId}</span></Label>            
+                      >Staff: <span className="font-normal">{bill.staff}</span></Label>            
                   <Label 
                       >Customer: <span className="font-normal">{bill.customer}</span></Label>
                   <div className="flex">
@@ -227,8 +228,8 @@ export const columns: (onUpdate: (billId: number, newStatus: "Pending" | "Succes
                               <TableCell className="text-left">{index + 1}</TableCell>
                               <TableCell>{billInfo.productName}</TableCell>
                               <TableCell>{billInfo.productCount}</TableCell>
-                              <TableCell>{billInfo.productPrice}</TableCell>
-                              <TableCell>{billInfo.totalPriceDtail}</TableCell>
+                              <TableCell>{billInfo.productPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                              <TableCell>{billInfo.totalPriceDtail.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                               </TableRow>
                           </Fragment>
                           ))
@@ -240,7 +241,8 @@ export const columns: (onUpdate: (billId: number, newStatus: "Pending" | "Succes
                   <Label>Payment Type: <span className="font-normal">{bill.payType}</span></Label>       
                   <Label>Created At: <span className="font-normal">{bill.dateString}</span></Label>   
               </div>
-              <Label htmlFor="totalPrice" className="text-red-600 text-right">Sub Total: <span>{bill.totalPrice}</span></Label>
+              <Label htmlFor="discount" className="text-orange-500 text-right">Discount: <span>{bill.voucherTypeIndex==2? bill.voucherValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }):bill.voucherValue}</span> {bill.voucherTypeIndex==2?'':'%'}</Label>
+              <Label htmlFor="totalPrice" className="text-red-600 text-right">Sub Total: <span>{bill.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></Label>
               </div>
               <DialogFooter>
               <DialogClose asChild>
