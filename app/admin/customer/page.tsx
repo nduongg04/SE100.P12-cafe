@@ -62,10 +62,10 @@ const CustomerPage = () => {
         );
     }
     return (
-        <Tabs defaultValue="customer" className="m-4">
-            <TabsList className="grid w-[50%] grid-cols-2">
-                <TabsTrigger value="customer" className="text-xl font-semibold p-2 items-start justify-start">Customer Management</TabsTrigger>
-                <TabsTrigger value="membership" className="text-xl font-semibold p-2 items-start justify-start">Membership Management</TabsTrigger>
+        <Tabs defaultValue="customer" className="mx-4 mt-14 md:mt-4">
+            <TabsList className="">
+                <TabsTrigger value="customer" className="text-xl font-semibold py-2 px-8 items-start justify-start">Customer Management</TabsTrigger>
+                <TabsTrigger value="membership" className="text-xl font-semibold py-2 px-8 items-start justify-start">Membership Management</TabsTrigger>
             </TabsList>
             <TabsContent value="customer">
                 <div>

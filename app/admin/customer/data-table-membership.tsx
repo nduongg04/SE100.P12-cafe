@@ -239,7 +239,7 @@ export function DataTableMemberShip<TData, TValue>({
                   <td ><Input placeholder="Minium spending" value={boundaryRevenue} onChange={(e)=>setBoundaryRevenue(!Number.parseInt(e.target.value)?0:Number.parseInt(e.target.value))} /></td>
                 </tr>
                 <tr>
-                  <td >Discount</td>
+                  <td >Discount(%)</td>
                   <td ><Input placeholder="Discount rate" value={discountValue} onChange={(e)=>setDiscountValue(!Number.parseInt(e.target.value)?0:Number.parseInt(e.target.value))}/></td>
                 </tr>
               </table>            
