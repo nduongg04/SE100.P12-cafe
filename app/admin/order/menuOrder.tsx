@@ -166,9 +166,9 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                       <CommandItem
                         key={category.CategoryName}
                         value={String(category.CategoryName)}
-                        onSelect={(currentValue) => {
+                        onSelect={(currentValue:string) => {
                           if (currentValue === typeCate) {
-                            filterPrd(searchPrd, currentValue);
+                            filterPrd(searchPrd, 'All');
                           } else {
                             filterPrd(searchPrd, currentValue);
                           }

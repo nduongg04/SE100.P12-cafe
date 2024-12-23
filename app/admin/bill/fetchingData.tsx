@@ -42,10 +42,11 @@ export async function getData(): Promise<Bill[]> {
         };
         const fetchedBills: Bill[] = data.map((item: any) => ({
             id: item.billId,
-            customer: item.customer ? item.customer : "Visiting Customer",
+            customer: item.customer ? item.customer.customerName : "Visiting Customer",
             voucherValue: item.voucherValue,
-            staff: item.staff ? item.staff : "Unknown Staff",
-            payType: item.payType ? item.payType : "Unknown Pay Type",
+            voucherTypeIndex: item.voucherTypeIndex,
+            staff: item.staff ? item.staff.staffName : "Unknown Staff",
+            payType: item.payType ? item.payType.payTypeName : "Unknown Pay Type",
             status: item.status,
             totalPrice: item.totalPrice,
             createdAt: parseDate(item.createdAt),

@@ -11,7 +11,7 @@ import { set } from "date-fns";
 const BillPage = () => {
     const [data, setData] = React.useState<Bill[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
-    const handleUpdate = (billId:string, newStatus: "Pending"|"Successful") => {
+    const handleUpdate = (billId:number, newStatus: "Pending"|"Successful") => {
         setData((prevData) =>
           prevData.map((bill) =>
             bill.id === billId ? { ...bill, status: newStatus } : bill
@@ -38,7 +38,7 @@ const BillPage = () => {
         );
     }
     return (
-        <div className="m-4">
+        <div className="m-4 mb-2 mt-10 md:mt-4">
             <h2 className="text-3xl text-dark-green font-[650] mt-4 mb-4">Bill Management</h2>
             <div>
                 <DataTable columns={columns(handleUpdate)} data={data}/>

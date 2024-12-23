@@ -23,7 +23,7 @@ import BillDialog from "./bill-dialog";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type BillInfo = {
-  billID: string
+  billID: number
   productID: string
   productName: string
   productCount: number
@@ -31,9 +31,10 @@ export type BillInfo = {
   productPrice: number
 }
 export type Bill = {
-  id: string
+  id: number
   customer: string
   voucherValue: number
+  voucherTypeIndex?: number
   staffId: string
   staff: string
   payType: string
@@ -58,10 +59,15 @@ export const dateRangeFilter: FilterFn<any> = (row, columnId, filterValue) => {
   }
   return true; // No filter if both start and end are undefined
 };
-export const columns: (onUpdate: (billId: string, newStatus: "Pending" | "Successful") => void) => ColumnDef<Bill>[] = (onUpdate) =>[
+export const idFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  console.log(row.getValue(columnId), filterValue)
+  return row.getValue(columnId) == filterValue;
+};
+export const columns: (onUpdate: (billId: number, newStatus: "Pending" | "Successful") => void) => ColumnDef<Bill>[] = (onUpdate) =>[
   {
     id: "id",
     accessorKey: "id",
+    filterFn: idFilter,
     header: "ID",
   },
   {

@@ -35,13 +35,8 @@ const NavBar = ({ isOpen, onClose }: NavBarProps) => {
     icon: IconNameType;
   }[] = [
     {
-      label: "Dashboard",
-      href: "/admin",
-      icon: "dashboard",
-    },
-    {
       label: "Menu",
-      href: "/admin/menu",
+      href: "/admin",
       icon: "menu",
     },
     {

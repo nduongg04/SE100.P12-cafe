@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PenSquare, Shapes, Trash2, TriangleAlert, CheckCheck,Ban } from "lucide-react";
+import { PenSquare, Shapes, Trash2, Wrench, CheckCheck,Ban,ReceiptText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import {
@@ -19,13 +19,19 @@ export default function TableCardMenu({
   table,
   bookTable,
   unBooked,
+  repairTable,
+  repairedTable,
+  showBill,
 }: {
   table: Table;
   bookTable: () => void;
   unBooked: () => void;
+  repairTable: () => void;
+  repairedTable: () => void;
+  showBill: () => Promise<void>;
 }) {
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 shadow-md">
+    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 shadow-md ${table.status == "Under repair" ? "bg-gray-300 bg-opacity-80" : ""}`}>
       <div className="relative h-48">
         <Image
           src="/assets/icons/table.svg"
@@ -35,18 +41,43 @@ export default function TableCardMenu({
         />
         <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           {table.status == "Not booked" && (
+            <div>
+              <Button
+              size="sm"
+              variant="secondary"
+              className="mr-2 bg-[#fd9620] text-white hover:bg-[#e29338]"
+              onClick={repairTable}
+          >
+            <Wrench className="mr-2 h-4 w-4" />
+            Repair
+            </Button>
             <Button
               size="sm"
               variant="secondary"
-              className="mr-2 bg-[#00B074] text-white hover:bg-[#00956A]"
+              className=" bg-[#1ab380] text-white hover:bg-[#1b9975]"
               onClick={bookTable}
           >
             <CheckCheck className="mr-2 h-4 w-4" />
             Booked
             </Button>
+            
+            </div>
+           
+            
           )}
           {table.status == "Booked" && (
+            
+           <div className="flex items-center justify-center gap-2">
             <Button
+              size="sm"
+              variant="secondary"
+              onClick={()=>showBill()}
+            className="bg-[#1ab380] text-white hover:bg-[#1b9975]" 
+          >
+            <ReceiptText className="mr-2 h-4 w-4" />
+           Show Bill
+          </Button>
+             <Button
               size="sm"
               variant="secondary"
               onClick={unBooked}
@@ -54,6 +85,19 @@ export default function TableCardMenu({
           >
             <Ban className="mr-2 h-4 w-4" />
             Not Booked
+          </Button>
+          
+           </div>
+          )}
+          {table.status == "Under repair" && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={repairedTable}
+            className="mr-2 bg-[#1ab380] text-white hover:bg-[#1b9975]"
+          >
+            <CheckCheck className="mr-2 h-4 w-4" />
+            Repaired
           </Button>
           )}
         </div>
@@ -71,7 +115,7 @@ export default function TableCardMenu({
           ) : table.status == "Booked" ? (
             <span className="ml-2 text-red-500">{table.status}</span>
           ) : (
-            <span className="ml-2 text-yellow-500">{table.status}</span>
+            <span className="ml-2 text-[#fd9620]">{table.status}</span>
           )}{" "}
         </h3>
       </CardContent>
