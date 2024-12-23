@@ -40,7 +40,7 @@ const formSchema = z.object({
 
 export default function FeedbackPage() {
   const [rating, setRating] = useState(0);
-
+	const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,6 +53,7 @@ export default function FeedbackPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
       await createFeedback(values);
       toast({
@@ -67,6 +68,8 @@ export default function FeedbackPage() {
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -161,8 +164,9 @@ export default function FeedbackPage() {
               <Button
                 type="submit"
                 className="w-full bg-[#00B074] hover:bg-[#00B074]/90"
+                disabled={isLoading}
               >
-                Submit Feedback
+                {isLoading ? "Submitting..." : "Submit Feedback"}
               </Button>
             </form>
           </Form>

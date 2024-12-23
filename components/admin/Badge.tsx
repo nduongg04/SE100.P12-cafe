@@ -9,7 +9,7 @@ type BadgeProps = {
 const Badge = ({ iconHref, value, title }: BadgeProps) => {
     // Format the value if it's a currency
     const formattedValue = title.toLowerCase().includes('revenue')
-        ? `$${parseInt(value.replace(/[^0-9.-]+/g, "")).toLocaleString('en-US')}`
+        ? `${parseInt(value.replace(/[^0-9.-]+/g, "")).toLocaleString('vi-VN')}₫`
         : value;
 
     return (

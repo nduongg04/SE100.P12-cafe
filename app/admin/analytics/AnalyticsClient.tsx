@@ -128,7 +128,9 @@ export default function AnalyticsClient() {
       title: "Total Revenue",
     },
   ];
-
+	useEffect(() => {
+		console.log(badgeInfos);
+	}, [badgeInfos]);
   // const exportToExcel = async () => {
   //   try {
   //     const startDate = selectedDate?.from ? format(selectedDate.from, "dd/MM/yyyy") : format(addDays(new Date(), -7), "dd/MM/yyyy");
