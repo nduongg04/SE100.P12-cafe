@@ -8,25 +8,12 @@ import { getAllFeedback } from '@/lib/actions/feedback.action'
 import type { Feedback } from '@/types/feedback'
 import LoadingSpinner from './LoadingSpinner'
 
-export function FeedbackDisplay() {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+type FeedbackDisplayProps = {
+  isLoading: boolean
+  customerReviews: Feedback[]
+}
 
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      try {
-        const data = await getAllFeedback()
-        setFeedbacks(data)
-      } catch (error) {
-        console.error('Error fetching feedback:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchFeedback()
-  }, [])
-
+export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayProps) {
   if (isLoading) {
     return (
       <Card>
@@ -48,7 +35,7 @@ export function FeedbackDisplay() {
         <CardDescription>Recent feedback from our customers</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {feedbacks.map((feedback) => (
+        {customerReviews.map((feedback) => (
           <div key={feedback.feedbackId} className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50">
             <Avatar>
               <AvatarFallback>
