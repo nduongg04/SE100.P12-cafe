@@ -57,7 +57,7 @@ export default function TableForm({
     resolver: zodResolver(tableFormSchema),
     defaultValues: {
       tableNumber: table?.tableNumber ?? 1,
-      floorId: table?.floor.floorNumber ?? 1,
+      floorId: table?.floorId ?? 1,
       tableTypeID: table?.tableTypeID ?? 1,
     },
   });
@@ -152,7 +152,7 @@ export default function TableForm({
                   {floors.map((floor) => (
                     <SelectItem
                       key={floor.floorID}
-                      value={floor.floorNumber.toString()}
+                      value={floor.floorID.toString()}
                     >
                       {floor.floorNumber}
                     </SelectItem>
