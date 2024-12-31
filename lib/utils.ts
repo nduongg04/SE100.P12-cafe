@@ -12,6 +12,9 @@ export const parseDate = (dateStr: string) => {
 	}
 	return new Date(dateStr);
 };
+export const formatMoney = (money: number) => {
+	return money.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+}
 
 export function addDays(date: Date, days: number) {
   var result = new Date(date);

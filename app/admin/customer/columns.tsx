@@ -401,7 +401,7 @@ export const customerTypeColumns: (
                   </td>
                 </tr>
                 <tr>
-                  <td >Discount</td>
+                  <td >Discount(%)</td>
                   <td >
                     <Input 
                       type="number"

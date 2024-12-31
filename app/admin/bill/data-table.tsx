@@ -81,7 +81,7 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div>
+    <div className="h-[100%]">
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Search by id"
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
             table.getColumn("id")?.setFilterValue(event.target.value)
           }
           }
-          className="max-w-sm bg-white rounded-md"
+          className="max-w-sm bg-white rounded-md min-w-[60px]"
         />
         <div className="flex justify-end">
           <DateRangePicker
