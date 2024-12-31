@@ -186,15 +186,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       totalPriceDtail: item.Total,
     }));
     try {
-      console.log(JSON.stringify({
-        staffId: user?.staffId,
-        status: tableOrder?"Pending":"Successful",
-        totalPrice: totalBill,
-        customerId: customer?.customerId,
-        voucherId: voucher?.voucherID,
-        payTypeId: payType,
-        billDetails: billDetails,
-      }))
+      
       const response = await fetch(`${url}/bill/create`, {
         method: "POST",
         headers: {
@@ -212,7 +204,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         }),
       });
       const data = await response.json();
-      console.log(data)
       if (!response.ok) {
         throw new Error(data.message);
       } else {
@@ -309,9 +300,8 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
       },
     },
     {
-      header: "STT",
-      accessorFn: (_, index) => index + 1, // Tự động đánh số thứ tự
-      cell: ({ getValue }) => {getValue()}, // Hiển thị số thứ tự
+       header: "STT",
+        cell: ({ row }) => row.index + 1,
     },
     {
       header: "Tên món",

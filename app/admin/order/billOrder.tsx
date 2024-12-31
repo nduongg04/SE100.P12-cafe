@@ -311,8 +311,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     },
     {
       header: "STT",
-      accessorFn: (_, index) => index + 1, // Tự động đánh số thứ tự
-      cell: ({ getValue }) => {getValue()}, // Hiển thị số thứ tự
+      cell: ({ row }) => row.index + 1,
     },
     {
       header: "Tên món",
@@ -334,11 +333,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         };
         return (
           <div className="flex">
-            {/* <Button
-                        variant='ghost'
-                        onClick={()=>handleSubtract(row.index)}>
-                            <Minus/>
-                        </Button> */}
             <Input
               type="number"
               min={1}
@@ -346,11 +340,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
               onChange={(e) => handleChange(e)}
               className="w-16"
             />
-            {/* <Button 
-                    variant='ghost'
-                    onClick={()=>handleAdd(row.index)}>
-                    <Plus/>
-                    </Button> */}
           </div>
         );
       },
