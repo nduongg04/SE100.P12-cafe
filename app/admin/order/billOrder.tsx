@@ -89,7 +89,6 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         }
       });
       setListVoucher(filteredVouchers);
-      console.log(filteredVouchers);
     };
     fetchData();
   }, []);

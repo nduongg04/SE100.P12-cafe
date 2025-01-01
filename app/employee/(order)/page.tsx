@@ -122,6 +122,7 @@ export default function OrderPage({ }: Props) {
       toast.error("Invalid phone number", {
         description: "Phone number must be 10 digits starting with 0",
       })
+      setLoadingAddCustomer(false);
       return;
     }
     // Validate email
@@ -130,6 +131,7 @@ export default function OrderPage({ }: Props) {
       toast.error("Invalid email", {
         description: "Please enter a valid email address",
       })
+      setLoadingAddCustomer(false);
       return;
     }
     const cookies = await getCookies('refreshToken');
@@ -160,12 +162,20 @@ export default function OrderPage({ }: Props) {
       setCustomerName("");
       setPhoneNumber("");
       setEmail("");
-      setNewCustomer(data.data);
+      setNewCustomer({
+        customerId: data.data.customerID,
+        customerType: data.data.customerType,
+        customerName: data.data.customerName,
+        phoneNumber: data.data.phoneNumber,
+        email: data.data.email,
+        revenue: data.data.revenue,
+      });
       setOpenAddCustomer(false);
     } catch (e: any) {
       toast.error("Failed to add customer", {
         description: e.message,
       })
+      setLoadingAddCustomer(false);
     }
     setLoadingAddCustomer(false);
   };
