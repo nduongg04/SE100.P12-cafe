@@ -62,13 +62,13 @@ const CustomerPage = () => {
         );
     }
     return (
-        <Tabs defaultValue="customer" className="mx-4 mt-14 md:mt-4">
-            <TabsList className="">
-                <TabsTrigger value="customer" className="text-xl font-semibold py-2 px-8 items-start justify-start">Customer Management</TabsTrigger>
+        <Tabs defaultValue="customer" className="m-1 sm:m-4 mb-2 mt-14 md:mt-4 max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-13rem)] p-1">
+            <TabsList className="flex-col sm:flex-row items-start gap-2">
+                <TabsTrigger value="customer" className="text-xl font-semibold py-2 px-8 items-start justify-starts">Customer Management</TabsTrigger>
                 <TabsTrigger value="membership" className="text-xl font-semibold py-2 px-8 items-start justify-start">Membership Management</TabsTrigger>
             </TabsList>
             <TabsContent value="customer">
-                <div>
+                <div className="mt-5">
                     <DataTable 
                         columns={columns(handleCustomerUpdate)}
                         data={data} 
@@ -78,7 +78,7 @@ const CustomerPage = () => {
                 </div>
             </TabsContent>
             <TabsContent value="membership">
-                <div>
+                <div className="mt-5">
                     <DataTableMemberShip 
                         columns={customerTypeColumns(handleCustomerTypeUpdate)}
                         data={customerType} 

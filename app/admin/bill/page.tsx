@@ -38,11 +38,9 @@ const BillPage = () => {
         );
     }
     return (
-        <div className="m-4 mb-2 mt-10 md:mt-4">
+        <div className="m-1 sm:m-4 mb-2 mt-10 md:mt-4 max-w-[calc(100vw-2rem)] p-1">
             <h2 className="text-3xl font-bold max-md:ml-4">Bill Management</h2>
-            <div>
-                <DataTable columns={columns(handleUpdate)} data={data}/>
-            </div>
+            <DataTable columns={columns(handleUpdate)} data={data}/>
         </div>
     );
 };

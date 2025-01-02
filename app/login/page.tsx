@@ -66,7 +66,7 @@ const LoginPage = () => {
                 alt=""
                 className="hidden max-w-[100%] md:block"
             />
-            <div className="flex w-[30%] min-w-[400px] flex-col gap-5 rounded-xl bg-white px-3 py-4 shadow-2xl">
+            <div className="flex w-[90%] sm:min-w-[400px] sm:w-[30%] md:min-w-[400px] md:w-[30%] flex-col gap-5 rounded-xl bg-white px-3 py-4 shadow-2xl">
                 <div className="bg-gradient-to-r from-[#3372FE] via-[#318BEE] to-[#30A2DF] bg-clip-text text-[25px] font-semibold text-transparent">
                     Login your account
                 </div>

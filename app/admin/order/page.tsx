@@ -216,9 +216,9 @@ export default function OrderPage({ }: Props) {
   };
   return (
     //
-    <Tabs value={currentTab} className="mx-2 mt-2">
+    <Tabs value={currentTab} className="mx-2 mt-10 md:mt-2">
       <div className="relative flex items-center justify-between">
-        <TabsList className="grid w-[30%] grid-cols-2">
+        <TabsList className="grid lg:w-[30%] grid-cols-2">
           <TabsTrigger
             onClick={() => {
               resetData();
@@ -300,8 +300,8 @@ export default function OrderPage({ }: Props) {
         )}
       </TabsContent>
       <TabsContent value="Take-away">
-        <div className="mt-2 flex">
-          <div className="mt-2 basis-3/6">
+        <div className="mt-2 flex flex-col lg:flex-row">
+          <div className="mt-2 lg:basis-3/6">
             <MenuOrder
               listPrdBill={listPrdBill}
               setListPrdBill={setListPrdBill}

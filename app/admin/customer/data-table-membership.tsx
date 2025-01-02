@@ -185,20 +185,20 @@ export function DataTableMemberShip<TData, TValue>({
   });
   
   return (
-    <div>
-      <div className="flex items-center justify-between py-4">
+    <div className="max-w-[calc(100vw-2rem)]">
+      <div className="flex flex-col md:flex-row items-center justify-between py-4 space-y-4 md:space-y-0">
         <Input
           placeholder="Search by name"
           value={(table.getColumn("customerTypeName")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("customerTypeName")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm bg-white rounded-md"
+          className="max-w-sm bg-white rounded-md min-w-[100px] w-full md:w-auto"
         />
-        <div className="flex justify-end">         
-          <Button variant="secondary" className="mx-4">
+        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">         
+          {/* <Button variant="secondary" className="mx-4">
             Download all
-          </Button>
+          </Button> */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">Delete membership</Button>
@@ -219,7 +219,7 @@ export function DataTableMemberShip<TData, TValue>({
           </AlertDialog>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="green" className="mx-4">Add membership</Button>
+              <Button variant="green" className="md:mx-4">Add membership</Button>
             </DialogTrigger>
             <DialogContent >
               <DialogHeader>

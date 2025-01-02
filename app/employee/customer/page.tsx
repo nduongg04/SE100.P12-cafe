@@ -75,10 +75,10 @@ const CustomerPage = () => {
   }
   return (
     <div className="m-4">
-      <h2 className="mb-4 mt-4 text-3xl font-[650] text-dark-green">
+      <h2 className="mb-4 mt-12 text-3xl font-[650] text-dark-green md:md-4">
         Customer Management
       </h2>
-      <div>
+      <div className="mt-5">
         <DataTable
           columns={columns(handleCustomerUpdate)}
           data={data}
