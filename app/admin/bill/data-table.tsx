@@ -81,8 +81,8 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="h-[100%]">
-      <div className="flex items-center justify-between py-4">
+    <div className="max-w-[calc(100vw-2rem)]"> 
+      <div className="flex flex-col md:flex-row items-center justify-between py-4 space-y-4 md:space-y-0">
         <Input
           placeholder="Search by id"
           value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
@@ -92,18 +92,18 @@ export function DataTable<TData, TValue>({
             table.getColumn("id")?.setFilterValue(event.target.value)
           }
           }
-          className="max-w-sm bg-white rounded-md min-w-[60px]"
+          className="max-w-sm bg-white rounded-md min-w-[100px] w-full md:w-auto"
         />
-        <div className="flex justify-end">
+        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
           <DateRangePicker
             startDate={startDate}
             endDate={endDate}
             setStartDate={handleStartDateChange}
             setEndDate={handleEndDateChange}
           />
-          <Button variant="secondary" className="mx-4">
+          {/* <Button variant="secondary" className="w-full md:w-auto">
             Download all
-          </Button>        
+          </Button>         */}
         </div>
       </div>
 
@@ -152,7 +152,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-
       <div className="flex">
         <div className="flex-1 text-sm text-muted-foreground mt-2">
           
@@ -176,7 +175,6 @@ export function DataTable<TData, TValue>({
           </Button>
         </div>
       </div>
-
     </div>
   );
 }

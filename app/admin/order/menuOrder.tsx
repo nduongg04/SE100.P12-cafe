@@ -207,7 +207,7 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
           </div>
         ) : (
           <ScrollArea className="mt-3 h-[580px] pb-1">
-            <div className="grid h-full grid-cols-3 grid-rows-3 gap-4 px-4 py-2">
+            <div className="grid h-full grid-cols-1 xl:grid-cols-3  gap-4 px-4 py-2">
               {listPrd.map((prd) =>{
                 return prd.IsSoldOut ? (
                   <div

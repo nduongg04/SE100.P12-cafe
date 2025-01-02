@@ -39,7 +39,7 @@ export default function TopDishes({ data }: TopDishesProps) {
         <CardDescription>Most ordered products for the selected period</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
           {topFiveDishes.map((item) => (
             <Card key={item.product.productID}>
               <CardContent className="flex flex-col items-center p-4">

@@ -362,13 +362,13 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
-    <div className="ml-2 mt-2 h-[98%] rounded-lg bg-white px-3 pt-3 shadow-sm relative">
+    <div className="ml-2 mt-2 mb-2 h-[98%] min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
       <div className="flex justify-between">
         <div
           className="relative flex items-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2>Customer :</h2>
+          <h2>Customer:</h2>
           
 
           {customer ? (
@@ -433,7 +433,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
         </div>
 
         <div className="flex items-center relative">
-          <h2>Voucher :</h2>
+          <h2>Voucher:</h2>
           {voucher ? (
             <>
               <p className="ml-2 border-b border-gray-400 font-semibold">
@@ -589,7 +589,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           </p>
         </div>
       </div>
-      <div className="absolute bottom-2 right-1 mr-3 flex justify-end gap-2">
+      <div className="mt-4 lg:absolute lg:bottom-2 lg:right-1  mr-3 flex justify-end gap-2">
         <Button
           onClick={resetBill}
           disabled={data.length==0}

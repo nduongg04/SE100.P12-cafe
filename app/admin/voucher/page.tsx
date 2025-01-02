@@ -222,16 +222,16 @@ export default function VoucherManagement() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container md:mx-auto p-2 md:p-4">
       <div className="mb-4 flex flex-col gap-5">
-        <h1 className="text-3xl font-bold max-md:ml-4">Voucher Management</h1>
-        <div className="flex items-center justify-end gap-2">
+        <h1 className="text-3xl font-bold max-md:ml-4 mt-8 md:mt-0">Voucher Management</h1>
+        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
           <div className="relative flex-1 sm:w-auto">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
             <Input
               type="text"
               placeholder="Search by code..."
-              className="w-64 border-gray-300 py-2 pl-10 pr-4 focus:border-[#00B074] focus:ring-[#00B074] lg:w-full"
+              className=" w-full min-w-40 border-gray-300 py-2 pl-10 pr-4 focus:border-[#00B074] focus:ring-[#00B074] lg:w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -323,63 +323,66 @@ export default function VoucherManagement() {
       {isLoadingVouchers ? (
         <LoadingSpinner />
       ) : (
-        <Table className="rounded-lg bg-white">
-          <TableHeader className="">
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead>Type name</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Number of applications</TableHead>
-              <TableHead>Created at</TableHead>
-              <TableHead>Expired at</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={
-                    selectedVouchers.length !== 0 &&
-                    selectedVouchers.length === vouchers.length
-                  }
-                  onCheckedChange={handleSelectAllVouchers}
-                  aria-label="Select all"
-                />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredVouchers.map((voucher, index) => (
-              <TableRow key={voucher.id}>
-                <TableCell>{voucher.id}</TableCell>
-                <TableCell>{voucher.code}</TableCell>
-                <TableCell>{voucher.typeName}</TableCell>
-                <TableCell>
-                  {voucher.typeName === "Percentage of bill"
-                    ? `${voucher.value}%`
-                    : `${voucher.value.toLocaleString("vi-VN")} VNĐ`}
-                </TableCell>
-                <TableCell>{voucher.numberOfApplications}</TableCell>
-                <TableCell>{format(voucher.createdAt, "dd/MM/yyyy")}</TableCell>
-                <TableCell>{format(voucher.expiredAt, "dd/MM/yyyy")}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEditVoucher(voucher)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-                <TableCell>
+        <div className="max-w-[calc(100vw-2rem)]">
+          <Table className="rounded-lg bg-white">
+            <TableHeader className="">
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Type name</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Number of applications</TableHead>
+                <TableHead>Created at</TableHead>
+                <TableHead>Expired at</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={selectedVouchers.includes(voucher.id)}
-                    onCheckedChange={() => handleSelectVoucher(voucher.id)}
-                    aria-label={`Select voucher ${voucher.code}`}
+                    checked={
+                      selectedVouchers.length !== 0 &&
+                      selectedVouchers.length === vouchers.length
+                    }
+                    onCheckedChange={handleSelectAllVouchers}
+                    aria-label="Select all"
+                    className="mr-2"
                   />
-                </TableCell>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredVouchers.map((voucher, index) => (
+                <TableRow key={voucher.id}>
+                  <TableCell>{voucher.id}</TableCell>
+                  <TableCell>{voucher.code}</TableCell>
+                  <TableCell>{voucher.typeName}</TableCell>
+                  <TableCell>
+                    {voucher.typeName === "Percentage of bill"
+                      ? `${voucher.value}%`
+                      : `${voucher.value.toLocaleString("vi-VN")} VNĐ`}
+                  </TableCell>
+                  <TableCell>{voucher.numberOfApplications}</TableCell>
+                  <TableCell>{format(voucher.createdAt, "dd/MM/yyyy")}</TableCell>
+                  <TableCell>{format(voucher.expiredAt, "dd/MM/yyyy")}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditVoucher(voucher)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedVouchers.includes(voucher.id)}
+                      onCheckedChange={() => handleSelectVoucher(voucher.id)}
+                      aria-label={`Select voucher ${voucher.code}`}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );

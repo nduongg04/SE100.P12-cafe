@@ -49,62 +49,65 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     };
 
     return (
-        <div className="flex items-center">
-            <p className="mx-2">From</p>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant={"outline"}
-                        className={cn(
-                            "w-[200px] justify-start text-left font-normal",
-                            !startDate && "text-muted-foreground",
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? (
-                            format(startDate, "PPP")
-                        ) : (
-                            <span>Pick a date</span>
-                        )}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                    <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={handleStartDateChange}
-                        initialFocus
-                    />
-                </PopoverContent>
-            </Popover>
-
-            <p className="mx-2">To</p>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant={"outline"}
-                        className={cn(
-                            "w-[200px] justify-start text-left font-normal",
-                            !endDate && "text-muted-foreground",
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? (
-                            format(endDate, "PPP")
-                        ) : (
-                            <span>Pick a date</span>
-                        )}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                    <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={handleEndDateChange}
-                        initialFocus
-                    />
-                </PopoverContent>
-            </Popover>
+        <div className="flex items-end flex-col gap-1 min-[529px]:flex-row ">
+            <div className="flex items-center">
+                <p className="mx-2">From</p>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-[200px] justify-start text-left font-normal",
+                                !startDate && "text-muted-foreground",
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? (
+                                format(startDate, "PPP")
+                            ) : (
+                                <span>Pick a date</span>
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={handleStartDateChange}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+            </div>
+            <div className="flex items-center">
+                <p className="mx-2">To</p>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-[200px] justify-start text-left font-normal",
+                                !endDate && "text-muted-foreground",
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {endDate ? (
+                                format(endDate, "PPP")
+                            ) : (
+                                <span>Pick a date</span>
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={endDate}
+                            onSelect={handleEndDateChange}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+            </div>
         </div>
     );
 };

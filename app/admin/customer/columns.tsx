@@ -58,6 +58,7 @@ export const columns:(
     header: ({ column }) => { 
       return (
         <Button
+        className="m-0 p-0"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -257,6 +258,7 @@ export const customerTypeColumns: (
     header: ({ column }) => { 
       return (
         <Button
+        className="m-0 p-0"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -280,6 +282,7 @@ export const customerTypeColumns: (
     header: ({ column }) => { 
       return (
         <Button
+        className="m-0 p-0"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
