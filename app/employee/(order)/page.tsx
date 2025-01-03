@@ -8,19 +8,34 @@ import TableOrder from "./tableOrder";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTable } from "@/lib/actions/table.action";
-import { BillApi, Customer, getBillBooking, getCategoryData, getProductData, unBookedTable, updateTableStatus } from "./fetchingData";
+import {
+  BillApi,
+  Customer,
+  getBillBooking,
+  getCategoryData,
+  getProductData,
+  unBookedTable,
+  updateTableStatus,
+} from "./fetchingData";
 import { toast } from "sonner";
 import Loading from "react-loading";
 import { Category, Product } from "./menuOrder";
-import { Dialog, DialogDescription, DialogHeader, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { getCookies } from "@/lib/action";
-import html2canvas from "html2canvas";
 import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import html2canvas from "html2canvas";
+import { getCookies } from "@/lib/action";
 type Props = {};
 
-export default function OrderPage({ }: Props) {
+export default function OrderPage({}: Props) {
   const [listPrdBill, setListPrdBill] = React.useState<PrdBill[]>([]);
   const [tableOrder, setTableOrder] = React.useState<number | null>(null);
   const [tabDineIn, setTabDineIn] = React.useState<boolean>(false);
@@ -29,7 +44,8 @@ export default function OrderPage({ }: Props) {
   const [isLoadingMenu, setIsLoadingMenu] = React.useState<boolean>(true);
   const [tables, setTables] = React.useState<Table[]>([]);
   const [tableNumber, setTableNumber] = React.useState<number | null>(null);
-  const [isLoadingUnBooked, setIsLoadingUnbooked] = React.useState<boolean>(false);
+  const [isLoadingUnBooked, setIsLoadingUnbooked] =
+    React.useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = React.useState<boolean>(true);
   const [currentTab, setCurrentTab] = React.useState("Dine-in");
   const [bill, setBill] = React.useState<BillApi | null>(null);
@@ -39,10 +55,11 @@ export default function OrderPage({ }: Props) {
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [openAddCustomer, setOpenAddCustomer] = React.useState<boolean>(false);
-  const [loadingAddCustomer,setLoadingAddCustomer]=React.useState<boolean>(false);
+  const [loadingAddCustomer, setLoadingAddCustomer] =
+    React.useState<boolean>(false);
   useEffect(() => {
     async function fetchData() {
-      console.log("fetch table")
+      console.log("fetch table");
       setIsLoadingTable(true);
       const tables = await getAllTable();
       if (!tables) {
@@ -54,7 +71,7 @@ export default function OrderPage({ }: Props) {
     }
 
     fetchData();
-  }, [])
+  }, []);
   useEffect(() => {
     async function fetchData() {
       setIsLoadingMenu(true);
@@ -67,16 +84,16 @@ export default function OrderPage({ }: Props) {
     fetchData();
   }, []);
   const updateStatusTable = (tableId: number, status: string) => {
-    const updatedTables = tables.map(table =>
-      table.tableID === tableId ? { ...table, status } : table
+    const updatedTables = tables.map((table) =>
+      table.tableID === tableId ? { ...table, status } : table,
     );
     setTables(updatedTables);
-  }
+  };
   const handleChooseTable = (tableId: number, tableNumber: number) => {
     setTableOrder(tableId);
     setTableNumber(tableNumber);
     setTabDineIn(true);
-  }
+  };
   const handleUpdateTableStatus = async (tableId: number, status: string) => {
     setIsLoadingUnbooked(true);
     if (status == "Not booked") {
@@ -107,13 +124,13 @@ export default function OrderPage({ }: Props) {
     setTableOrder(null);
     setTableNumber(null);
     setTabDineIn(false);
-  }
+  };
   const updateProductSoldOut = (id: number, isSoldOut: boolean) => {
-    const updatedProducts = products.map(product =>
-      product.ProductId === id ? { ...product, IsSoldOut: isSoldOut } : product
+    const updatedProducts = products.map((product) =>
+      product.ProductId === id ? { ...product, IsSoldOut: isSoldOut } : product,
     );
     setProducts(updatedProducts);
-  }
+  };
   const handleAddCustomer = async () => {
     setLoadingAddCustomer(true);
     // Validate phone number
@@ -121,7 +138,7 @@ export default function OrderPage({ }: Props) {
     if (!phoneRegex.test(phoneNumber)) {
       toast.error("Invalid phone number", {
         description: "Phone number must be 10 digits starting with 0",
-      })
+      });
       setLoadingAddCustomer(false);
       return;
     }
@@ -130,11 +147,11 @@ export default function OrderPage({ }: Props) {
     if (!emailRegex.test(email)) {
       toast.error("Invalid email", {
         description: "Please enter a valid email address",
-      })
+      });
       setLoadingAddCustomer(false);
       return;
     }
-    const cookies = await getCookies('refreshToken');
+    const cookies = await getCookies("refreshToken");
     const token = cookies?.value;
     const url = process.env.BASE_URL;
     try {
@@ -157,7 +174,7 @@ export default function OrderPage({ }: Props) {
       } else {
         toast.success("Customer added", {
           description: "Customer has been added successfully",
-        })
+        });
       }
       setCustomerName("");
       setPhoneNumber("");
@@ -174,8 +191,7 @@ export default function OrderPage({ }: Props) {
     } catch (e: any) {
       toast.error("Failed to add customer", {
         description: e.message,
-      })
-      setLoadingAddCustomer(false);
+      });
     }
     setLoadingAddCustomer(false);
   };
@@ -187,7 +203,7 @@ export default function OrderPage({ }: Props) {
       setOpenBill(true);
     }
     setIsLoadingUnbooked(false);
-  }
+  };
   const handleGenerateImg = async () => {
     const content = document.querySelector(".dialog-content-to-img");
     if (content instanceof HTMLElement) {
@@ -217,24 +233,26 @@ export default function OrderPage({ }: Props) {
   };
   return (
     //
-    <Tabs value={currentTab} className="mx-2 mt-10 md:mt-2">
+    <Tabs value={currentTab} className="mx-2 mt-12 md:mt-2">
       <div className="relative flex items-center justify-between">
-        <TabsList className="grid lg:w-[30%] grid-cols-2">
+        <TabsList className="grid grid-cols-2 lg:w-[30%]">
           <TabsTrigger
             onClick={() => {
               resetData();
-              setCurrentTab("Dine-in")
+              setCurrentTab("Dine-in");
             }}
             value="Dine-in"
             className="flex items-start justify-center p-2 text-xl font-semibold"
           >
-            {tabDineIn && <ChevronLeft className="w-7 h-7" />}
-            <p className={`w-full  ${tabDineIn ? "pr-6 -mt-[1px]" : ""}`}>Dine-in</p>
+            {tabDineIn && <ChevronLeft className="h-7 w-7" />}
+            <p className={`w-full ${tabDineIn ? "-mt-[1px] pr-6" : ""}`}>
+              Dine-in
+            </p>
           </TabsTrigger>
           <TabsTrigger
             onClick={() => {
               resetData();
-              setCurrentTab("Take-away")
+              setCurrentTab("Take-away");
             }}
             value="Take-away"
             className="items-start justify-start p-2 text-xl font-semibold"
@@ -244,49 +262,47 @@ export default function OrderPage({ }: Props) {
         </TabsList>
         <div className="absolute right-1 top-3 flex items-center">
           {tableOrder && tableNumber && (
-            <p className="mr-[380px] text-xl font-semibold">
-              Bàn #{tableNumber}
-            </p>
+            <p className="mr-5 text-xl font-semibold">Bàn #{tableNumber}</p>
           )}
-          {(tabDineIn || currentTab == "Take-away") && <Button onClick={()=>setOpenAddCustomer(true)} className="bg-dark-green text-white hover:bg-dark-green-foreground active:scale-95 active:shadow-lg">Add new customer</Button>}
-
-
+          {(tabDineIn || currentTab == "Take-away") && (
+            <Button
+              onClick={() => setOpenAddCustomer(true)}
+              className="bg-dark-green text-white hover:bg-dark-green-foreground active:scale-95 active:shadow-lg"
+            >
+              Add new customer
+            </Button>
+          )}
         </div>
-
       </div>
 
       <TabsContent value="Dine-in">
         {tabDineIn ? (
-          <div>
-
-            <div className=" flex">
-              <div className=" basis-3/6 mt-2">
-                <MenuOrder
-                  listPrdBill={listPrdBill}
-                  setListPrdBill={setListPrdBill}
-                  productsData={products}
-                  categoriesData={categories}
-                  loading={isLoadingMenu}
-                  soldOut={updateProductSoldOut}
-                />
-              </div>
-              <div className="basis-3/6 mt-2">
-                <BillTable
-                  data={listPrdBill}
-                  setData={setListPrdBill}
-                  tableOrder={tableOrder}
-                  updateStatus={updateStatusTable}
-                  resetData={resetData}
-                  newCustomer={newCustomer}
-                ></BillTable>
-              </div>
+          <div className="flex h-full w-full flex-col lg:flex-row">
+            <div className="mt-2 basis-3/6">
+              <MenuOrder
+                listPrdBill={listPrdBill}
+                setListPrdBill={setListPrdBill}
+                productsData={products}
+                categoriesData={categories}
+                loading={isLoadingMenu}
+                soldOut={updateProductSoldOut}
+              />
+            </div>
+            <div className="mt-2 basis-3/6">
+              <BillTable
+                data={listPrdBill}
+                setData={setListPrdBill}
+                tableOrder={tableOrder}
+                updateStatus={updateStatusTable}
+                resetData={resetData}
+                newCustomer={newCustomer}
+              ></BillTable>
             </div>
           </div>
-
         ) : (
-          <div className="mt-6 h-full relative ">
+          <div className="relative mt-6">
             {isLoadingUnBooked && (
-              <div className=" rounded-lg absolute inset-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
+              <div className="absolute inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-50">
                 <Loading type="spin" color="#fff" height={40} width={40} />
               </div>
             )}
@@ -389,7 +405,7 @@ export default function OrderPage({ }: Props) {
                       </tr>
                     </thead>
                     <tbody className="font-roboto_light">
-                      {bill?.billDetailDTOs.map((item:any, index:any) => (
+                      {bill?.billDetailDTOs.map((item, index) => (
                         <tr key={index}>
                           <td className="border-b border-dashed border-gray-300 p-2">
                             {item.productName}
@@ -413,7 +429,8 @@ export default function OrderPage({ }: Props) {
                     <p className="text-end">Tổng : </p>
                     {bill?.customer?.customerType && (
                       <h2 className="text-end">
-                        Thành viên {bill?.customer?.customerType?.customerTypeName} -
+                        Thành viên{" "}
+                        {bill?.customer?.customerType?.customerTypeName} -
                         {bill?.customer?.customerType?.discountValue}% :{" "}
                       </h2>
                     )}
@@ -438,7 +455,8 @@ export default function OrderPage({ }: Props) {
                       <p className="text-end">
                         -{" "}
                         {(
-                          (bill?.totalPrice * bill?.customer?.customerType?.discountValue) /
+                          (bill?.totalPrice *
+                            bill?.customer?.customerType?.discountValue) /
                           100
                         ).toLocaleString("vi-VN")}{" "}
                         đ
@@ -447,9 +465,10 @@ export default function OrderPage({ }: Props) {
                     {bill?.voucherTypeIndex == 1 && (
                       <p className="text-end">
                         -{" "}
-                        {((bill?.totalPrice * (bill?.voucherValue || 0)) / 100).toLocaleString(
-                          "vi-VN",
-                        )}{" "}
+                        {(
+                          (bill?.totalPrice * (bill?.voucherValue || 0)) /
+                          100
+                        ).toLocaleString("vi-VN")}{" "}
                         đ
                       </p>
                     )}
@@ -466,8 +485,14 @@ export default function OrderPage({ }: Props) {
               </div>
             </ScrollArea>
           </div>
-          <DialogFooter >
-            <Button className="mr-3" onClick={() => { handleGenerateImg() }} type="submit">
+          <DialogFooter>
+            <Button
+              className="mr-3"
+              onClick={() => {
+                handleGenerateImg();
+              }}
+              type="submit"
+            >
               Print
             </Button>
           </DialogFooter>
@@ -475,56 +500,64 @@ export default function OrderPage({ }: Props) {
       </Dialog>
       {/* dialog add customer */}
       <Dialog open={openAddCustomer} onOpenChange={setOpenAddCustomer}>
-       
-        <DialogContent >
-        {loadingAddCustomer && (
-              <div className=" rounded-lg absolute inset-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
-                <Loading type="spin" color="#fff" height={40} width={40} />
-              </div>
-            )}
+        <DialogContent>
+          {loadingAddCustomer && (
+            <div className="absolute inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-50">
+              <Loading type="spin" color="#fff" height={40} width={40} />
+            </div>
+          )}
           <DialogHeader>
             <DialogTitle>Add new customer</DialogTitle>
             <DialogDescription>
               Add new customer here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4 w-[100%]">
-            <table className="border-spacing-2 border-separate">
-              <tr >
-                <td >Full name</td>
-                <td >
+          <div className="grid w-[100%] gap-4 py-4">
+            <table className="border-separate border-spacing-2">
+              <tr>
+                <td>Full name</td>
+                <td>
                   <Input
                     placeholder="Fullname"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    required />
+                    required
+                  />
                 </td>
               </tr>
-              <tr >
-                <td >Phone Number</td>
-                <td >
+              <tr>
+                <td>Phone Number</td>
+                <td>
                   <Input
                     placeholder="Phone Number"
                     value={phoneNumber}
                     required
-                    onChange={(e) => setPhoneNumber(e.target.value)} />
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
                 </td>
               </tr>
-              <tr >
-                <td >Email</td>
-                <td >
+              <tr>
+                <td>Email</td>
+                <td>
                   <Input
                     type="email"
                     placeholder="Email"
                     value={email}
                     required
-                    onChange={(e) => setEmail(e.target.value)} />
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </td>
               </tr>
             </table>
           </div>
           <DialogFooter>
-            <Button type="submit" className="bg-green-600 hover:bg-green-500" onClick={handleAddCustomer}>Save changes</Button>
+            <Button
+              type="submit"
+              className="bg-green-600 hover:bg-green-500"
+              onClick={handleAddCustomer}
+            >
+              Save changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

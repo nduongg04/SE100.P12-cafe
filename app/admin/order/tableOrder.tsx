@@ -66,9 +66,9 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
   }, [debouncedSearchTerm, tables, activeCategory]);
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-0 pt-4 bg-white rounded-lg border border-gray-200 shadow-md pb-1">
-      <div className="flex flex-col gap-4 px-4 xl:flex-row xl:space-y-0 shadow-sm pb-4">
-        <div className="flex items-center flex-wrap justify-center gap-2 xl:justify-start">
+    <div className="mx-auto h-full w-full rounded-lg border border-gray-200 bg-white pt-4 shadow-md">
+      <div className="flex flex-col gap-4 px-4 pb-4 shadow-sm xl:flex-row xl:space-y-0">
+        <div className="flex flex-wrap items-center justify-center gap-2 xl:justify-start">
           <TableTypeButton
             tableType={{ tableTypeID: 0, tableNameType: "All" }}
             isActive={activeCategory === "all"}
@@ -103,27 +103,33 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
         </div>
       </div>
       {tables.length != 0 && (
-        <ScrollArea className="h-[580px] px-4">
+        <ScrollArea className="h-[66vh] overflow-y-auto px-4 md:h-[72vh] xl:h-[80vh]">
           {floors.map((floor) => (
-            <div key={floor.floorID} >
-              <div className="mb-4 flex flex-row mt-2">
+            <div key={floor.floorID}>
+              <div className="mb-4 mt-2 flex flex-row">
                 <p className="text-2xl font-semibold text-gray-900">
                   Floor {floor.floorNumber}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4 mb-4">
+              <div className="mb-4 mt-4 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredTables
                   .filter((table) => table.floor.floorID == floor.floorID)
                   .map((table) => (
                     <TableCardOrder
                       key={table.tableID}
                       table={table}
-                      bookTable={() => setTableOrder(table.tableID,table.tableNumber)}
-                      unBooked={()=>updateStatus(table.tableID,"Not booked")}
-                      repairTable={()=>updateStatus(table.tableID,"Under repair")}
-                      repairedTable={()=>updateStatus(table.tableID,"Repaired")}
-                      showBill={()=>showBill(table.tableID)}
+                      bookTable={() =>
+                        setTableOrder(table.tableID, table.tableNumber)
+                      }
+                      unBooked={() => updateStatus(table.tableID, "Not booked")}
+                      repairTable={() =>
+                        updateStatus(table.tableID, "Under repair")
+                      }
+                      repairedTable={() =>
+                        updateStatus(table.tableID, "Repaired")
+                      }
+                      showBill={() => showBill(table.tableID)}
                     />
                   ))}
               </div>
@@ -132,7 +138,7 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
         </ScrollArea>
       )}
       {isFetching ? (
-        <div className="flex items-center justify-center h-[580px]">
+        <div className="flex h-[66vh] items-center justify-center md:h-[72vh] xl:h-[80vh]">
           <svg
             aria-hidden="true"
             className="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
@@ -151,7 +157,7 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
           </svg>
         </div>
       ) : tables.length === 0 ? (
-        <div className="py-12 text-center h-[580px]">
+        <div className="h-[66vh] py-12 text-center md:h-[72vh] xl:h-[80vh]">
           <h3 className="mb-2 text-2xl font-semibold text-gray-700">
             No tables found
           </h3>

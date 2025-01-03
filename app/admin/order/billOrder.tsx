@@ -361,7 +361,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
-    <div className="ml-2 mt-2 mb-2 h-[98%] min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
+    <div className="ml-2 mt-2 mb-2 h-full min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
       <div className="flex justify-between">
         <div
           className="relative flex items-center"
@@ -372,7 +372,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
 
           {customer ? (
             <>
-              <p className="ml-2 border-b border-gray-400 font-semibold">
+              <p className="ml-2 border-b border-gray-400 font-semibold truncate">
                 {customer.customerName}
               </p>
               <Button
@@ -435,7 +435,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           <h2>Voucher:</h2>
           {voucher ? (
             <>
-              <p className="ml-2 border-b border-gray-400 font-semibold">
+              <p className="ml-2 border-b border-gray-400 font-semibold truncate">
                 {voucher.voucherCode}
               </p>
               <Button
@@ -490,7 +490,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
           )}
         </div>
       </div>
-      <ScrollArea className="mt-4 h-[420px] rounded-md border-2 border-gray-400 pb-1">
+      <ScrollArea className="mt-4 h-[56vh] rounded-md border-2 border-gray-400 pb-1">
         <div className="h-full">
           <Table>
             <TableHeader>

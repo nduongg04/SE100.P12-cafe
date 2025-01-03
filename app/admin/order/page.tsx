@@ -216,24 +216,26 @@ export default function OrderPage({ }: Props) {
   };
   return (
     //
-    <Tabs value={currentTab} className="mx-2 mt-10 md:mt-2">
+    <Tabs value={currentTab} className="mx-2 mt-12 md:mt-2">
       <div className="relative flex items-center justify-between">
-        <TabsList className="grid lg:w-[30%] grid-cols-2">
+        <TabsList className="grid grid-cols-2 lg:w-[30%]">
           <TabsTrigger
             onClick={() => {
               resetData();
-              setCurrentTab("Dine-in")
+              setCurrentTab("Dine-in");
             }}
             value="Dine-in"
             className="flex items-start justify-center p-2 text-xl font-semibold"
           >
-            {tabDineIn && <ChevronLeft className="w-7 h-7" />}
-            <p className={`w-full  ${tabDineIn ? "pr-6 -mt-[1px]" : ""}`}>Dine-in</p>
+            {tabDineIn && <ChevronLeft className="h-7 w-7" />}
+            <p className={`w-full ${tabDineIn ? "-mt-[1px] pr-6" : ""}`}>
+              Dine-in
+            </p>
           </TabsTrigger>
           <TabsTrigger
             onClick={() => {
               resetData();
-              setCurrentTab("Take-away")
+              setCurrentTab("Take-away");
             }}
             value="Take-away"
             className="items-start justify-start p-2 text-xl font-semibold"
@@ -243,23 +245,25 @@ export default function OrderPage({ }: Props) {
         </TabsList>
         <div className="absolute right-1 top-3 flex items-center">
           {tableOrder && tableNumber && (
-            <p className="mr-[380px] text-xl font-semibold">
+            <p className=" mr-5 text-xl font-semibold">
               Bàn #{tableNumber}
             </p>
           )}
-          {(tabDineIn || currentTab == "Take-away") && <Button onClick={()=>setOpenAddCustomer(true)} className="bg-dark-green text-white hover:bg-dark-green-foreground active:scale-95 active:shadow-lg">Add new customer</Button>}
-
-
+          {(tabDineIn || currentTab == "Take-away") && (
+            <Button
+              onClick={() => setOpenAddCustomer(true)}
+              className="bg-dark-green text-white hover:bg-dark-green-foreground active:scale-95 active:shadow-lg"
+            >
+              Add new customer
+            </Button>
+          )}
         </div>
-
       </div>
 
       <TabsContent value="Dine-in">
         {tabDineIn ? (
-          <div>
-
-            <div className=" flex">
-              <div className=" basis-3/6 mt-2">
+            <div className="flex flex-col lg:flex-row w-full h-full">
+              <div className="mt-2 basis-3/6">
                 <MenuOrder
                   listPrdBill={listPrdBill}
                   setListPrdBill={setListPrdBill}
@@ -269,7 +273,7 @@ export default function OrderPage({ }: Props) {
                   soldOut={updateProductSoldOut}
                 />
               </div>
-              <div className="basis-3/6 mt-2">
+              <div className="mt-2 basis-3/6">
                 <BillTable
                   data={listPrdBill}
                   setData={setListPrdBill}
@@ -280,12 +284,10 @@ export default function OrderPage({ }: Props) {
                 ></BillTable>
               </div>
             </div>
-          </div>
-
         ) : (
-          <div className="mt-6 h-full relative ">
+          <div className="relative mt-6">
             {isLoadingUnBooked && (
-              <div className=" rounded-lg absolute inset-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
+              <div className="absolute inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-50">
                 <Loading type="spin" color="#fff" height={40} width={40} />
               </div>
             )}
@@ -412,7 +414,8 @@ export default function OrderPage({ }: Props) {
                     <p className="text-end">Tổng : </p>
                     {bill?.customer?.customerType && (
                       <h2 className="text-end">
-                        Thành viên {bill?.customer?.customerType?.customerTypeName} -
+                        Thành viên{" "}
+                        {bill?.customer?.customerType?.customerTypeName} -
                         {bill?.customer?.customerType?.discountValue}% :{" "}
                       </h2>
                     )}
@@ -437,7 +440,8 @@ export default function OrderPage({ }: Props) {
                       <p className="text-end">
                         -{" "}
                         {(
-                          (bill?.totalPrice * bill?.customer?.customerType?.discountValue) /
+                          (bill?.totalPrice *
+                            bill?.customer?.customerType?.discountValue) /
                           100
                         ).toLocaleString("vi-VN")}{" "}
                         đ
@@ -446,9 +450,10 @@ export default function OrderPage({ }: Props) {
                     {bill?.voucherTypeIndex == 1 && (
                       <p className="text-end">
                         -{" "}
-                        {((bill?.totalPrice * (bill?.voucherValue || 0)) / 100).toLocaleString(
-                          "vi-VN",
-                        )}{" "}
+                        {(
+                          (bill?.totalPrice * (bill?.voucherValue || 0)) /
+                          100
+                        ).toLocaleString("vi-VN")}{" "}
                         đ
                       </p>
                     )}
@@ -466,7 +471,13 @@ export default function OrderPage({ }: Props) {
             </ScrollArea>
           </div>
           <DialogFooter>
-            <Button className="mr-3" onClick={() => { handleGenerateImg() }} type="submit">
+            <Button
+              className="mr-3"
+              onClick={() => {
+                handleGenerateImg();
+              }}
+              type="submit"
+            >
               Print
             </Button>
           </DialogFooter>
@@ -474,56 +485,64 @@ export default function OrderPage({ }: Props) {
       </Dialog>
       {/* dialog add customer */}
       <Dialog open={openAddCustomer} onOpenChange={setOpenAddCustomer}>
-       
-        <DialogContent >
-        {loadingAddCustomer && (
-              <div className=" rounded-lg absolute inset-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
-                <Loading type="spin" color="#fff" height={40} width={40} />
-              </div>
-            )}
+        <DialogContent>
+          {loadingAddCustomer && (
+            <div className="absolute inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-black bg-opacity-50">
+              <Loading type="spin" color="#fff" height={40} width={40} />
+            </div>
+          )}
           <DialogHeader>
             <DialogTitle>Add new customer</DialogTitle>
             <DialogDescription>
               Add new customer here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4 w-[100%]">
-            <table className="border-spacing-2 border-separate">
-              <tr >
-                <td >Full name</td>
-                <td >
+          <div className="grid w-[100%] gap-4 py-4">
+            <table className="border-separate border-spacing-2">
+              <tr>
+                <td>Full name</td>
+                <td>
                   <Input
                     placeholder="Fullname"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    required />
+                    required
+                  />
                 </td>
               </tr>
-              <tr >
-                <td >Phone Number</td>
-                <td >
+              <tr>
+                <td>Phone Number</td>
+                <td>
                   <Input
                     placeholder="Phone Number"
                     value={phoneNumber}
                     required
-                    onChange={(e) => setPhoneNumber(e.target.value)} />
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
                 </td>
               </tr>
-              <tr >
-                <td >Email</td>
-                <td >
+              <tr>
+                <td>Email</td>
+                <td>
                   <Input
                     type="email"
                     placeholder="Email"
                     value={email}
                     required
-                    onChange={(e) => setEmail(e.target.value)} />
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </td>
               </tr>
             </table>
           </div>
           <DialogFooter>
-            <Button type="submit" className="bg-green-600 hover:bg-green-500" onClick={handleAddCustomer}>Save changes</Button>
+            <Button
+              type="submit"
+              className="bg-green-600 hover:bg-green-500"
+              onClick={handleAddCustomer}
+            >
+              Save changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

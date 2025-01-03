@@ -132,7 +132,7 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
     }
 
     return (
-      <div className="mr-2 mt-2 h-[98%] rounded-lg bg-white px-2 py-2 shadow-sm">
+      <div className="mr-2 mt-2 h-full rounded-lg bg-white px-2 py-2 shadow-sm">
         <div className="mt-2 flex justify-between px-3">
           <Input
             placeholder="Search by name"
@@ -166,9 +166,9 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                       <CommandItem
                         key={category.CategoryName}
                         value={String(category.CategoryName)}
-                        onSelect={(currentValue:string) => {
+                        onSelect={(currentValue: string) => {
                           if (currentValue === typeCate) {
-                            filterPrd(searchPrd, 'All');
+                            filterPrd(searchPrd, "All");
                           } else {
                             filterPrd(searchPrd, currentValue);
                           }
@@ -196,7 +196,7 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
           </Popover>
         </div>
         {loading ? (
-          <div className="mt-3 flex h-[580px] items-center justify-center">
+          <div className="mt-3 flex h-[78vh] items-center justify-center">
             <Loading
               type="spin"
               color="gray"
@@ -206,9 +206,9 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
             />
           </div>
         ) : (
-          <ScrollArea className="mt-3 h-[580px] pb-1">
-            <div className="grid h-full grid-cols-1 xl:grid-cols-3  gap-4 px-4 py-2">
-              {listPrd.map((prd) =>{
+          <ScrollArea className="mt-3 h-[78vh] pb-1">
+            <div className="grid h-full grid-cols-1 gap-4 px-4 py-2 xl:grid-cols-3">
+              {listPrd.map((prd) => {
                 return prd.IsSoldOut ? (
                   <div
                     key={prd.ProductId}
@@ -225,7 +225,9 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                           size="sm"
                           variant="secondary"
                           className="mr-2 bg-[#00B074] text-white hover:bg-[#00956A]"
-                          onClick={() => updateSoldOut(prd.ProductId,prd.IsSoldOut)}
+                          onClick={() =>
+                            updateSoldOut(prd.ProductId, prd.IsSoldOut)
+                          }
                         >
                           <CheckCheck className="mr-2 h-4 w-4" />
                           Available
@@ -252,7 +254,11 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                   <div
                     key={prd.ProductId}
                     className="relative flex cursor-pointer flex-col justify-between rounded-lg border p-3 px-1 text-center shadow-md transition duration-150 ease-in-out hover:bg-gray-100 active:scale-95 active:shadow-lg"
-                    onClick={() => {if(rightClick != prd.ProductId){clickPrd(prd)}}}
+                    onClick={() => {
+                      if (rightClick != prd.ProductId) {
+                        clickPrd(prd);
+                      }
+                    }}
                     onContextMenu={(e) => {
                       e.preventDefault(); // Ngăn chặn menu ngữ cảnh mặc định
                       setCheckRightClick(prd.ProductId);
@@ -263,7 +269,9 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={() => updateSoldOut(prd.ProductId,prd.IsSoldOut)}
+                          onClick={() =>
+                            updateSoldOut(prd.ProductId, prd.IsSoldOut)
+                          }
                           className="bg-red-500 text-white hover:bg-red-600"
                         >
                           <Ban className="mr-2 h-4 w-4" />
@@ -283,7 +291,8 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
                       <p className="text-gray-700">{formatted(prd.Price)}</p>
                     </div>
                   </div>
-                );})}
+                );
+              })}
             </div>
           </ScrollArea>
         )}
