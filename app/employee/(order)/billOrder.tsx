@@ -107,21 +107,24 @@ export default function BillTable({
   useEffect(() => {
     const total = data.reduce((acc, item) => acc + item.Total, 0);
     setTotal(total);
-    let totalBill = total;
+    let discountCus = 0;
+    let discountVoucher = 0;
+    let totalBill2 = total;
     if (customer?.customerType) {
-      totalBill = total - (total * customer.customerType.discountValue) / 100;
+      discountCus = (total * customer.customerType.discountValue) / 100;
     }
     if (voucher) {
       if (voucher.voucherType.voucherTypeID == 1) {
-        totalBill = totalBill - (totalBill * voucher.voucherValue) / 100;
+        discountVoucher = (total * voucher.voucherValue) / 100;
       } else if (voucher.voucherType.voucherTypeID == 2) {
-        totalBill = totalBill - voucher.voucherValue;
+        discountVoucher = voucher.voucherValue;
       }
-      if (totalBill < 0) {
-        totalBill = 0;
+      if (totalBill2 <= 0) {
+        totalBill2 = 0;
       }
     }
-    setTotalBill(totalBill);
+    totalBill2 = totalBill2 - discountCus - discountVoucher;
+    setTotalBill(totalBill2);
   }, [customer, voucher, data]);
   useEffect(() => {
     if (finishedBill && !openBill) {
