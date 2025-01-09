@@ -7,4 +7,9 @@ export type Feedback = {
   content: string;
 };
 
-export type FeedbackFormData = Omit<Feedback, "feedbackId">;
+export type FeedbackFormData = Omit<Feedback, "feedbackId"> & {
+  listProdFb: {
+    productID: number;
+    star: number;
+  }[];
+};

@@ -1,26 +1,33 @@
 "use client";
 
+import { toast } from "@/hooks/use-toast";
+import { createFeedback } from "@/lib/actions/feedback.action";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusCircle, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Star } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createFeedback } from "@/lib/actions/feedback.action";
-import { toast } from "@/hooks/use-toast";
+import { getAllProduct } from "@/lib/actions/menu.action";
+import { Product } from "@/types/products";
 
 const formSchema = z.object({
   fullname: z.string().min(2, {
@@ -36,11 +43,28 @@ const formSchema = z.object({
     message: "Feedback must be at least 10 characters.",
   }),
   starNumber: z.number().min(1).max(5),
+  dishes: z.array(
+    z.object({
+      name: z.string().min(1, "Please select a dish"),
+      rating: z.number().min(1).max(5),
+    }),
+  ),
 });
+
+const dishes = [
+  { label: "Espresso", value: "espresso" },
+  { label: "Cappuccino", value: "cappuccino" },
+  { label: "Latte", value: "latte" },
+  { label: "Mocha", value: "mocha" },
+  { label: "Americano", value: "americano" },
+];
 
 export default function FeedbackPage() {
   const [rating, setRating] = useState(0);
-	const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [dishRatings, setDishRatings] = useState([{ name: "", rating: 0 }]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [ratedProducts, setRatedProducts] = useState<Product[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,19 +73,46 @@ export default function FeedbackPage() {
       phonenumber: "",
       content: "",
       starNumber: 0,
+      dishes: [{ name: "", rating: 0 }],
     },
   });
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const data: Product[] = await getAllProduct();
+      setProducts(data);
+    };
+    fetchProduct();
+  }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await createFeedback(values);
+      await createFeedback({
+        ...values,
+        listProdFb: values.dishes
+          .filter((dish) => dish.name && dish.rating > 0)
+          .map((dish) => {
+            const product = products.find(
+              (product) => product.productName === dish.name,
+            );
+            if (!product) {
+              throw new Error("Product not found");
+            }
+            return {
+              productID: product?.productID,
+              star: dish?.rating || 0,
+            };
+          }),
+      });
       toast({
         title: "Feedback submitted",
         description: "Thank you for your feedback!",
         variant: "success",
       });
       form.reset();
+      setRating(0);
+      setDishRatings([{ name: "", rating: 0 }]);
     } catch (error) {
       toast({
         title: "Error",
@@ -160,6 +211,106 @@ export default function FeedbackPage() {
                   </FormItem>
                 )}
               />
+
+              {dishRatings.map((dish, index) => (
+                <div key={index} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name={`dishes.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dish {index + 1}</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            const selectedProduct = products.find(
+                              (p) => p.productName === value,
+                            );
+                            if (selectedProduct) {
+                              setRatedProducts((prev) => [
+                                ...prev,
+                                selectedProduct,
+                              ]);
+                            }
+                          }}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a dish" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {products
+                              .filter(
+                                (product) =>
+                                  !ratedProducts.some(
+                                    (ratedProduct) =>
+                                      ratedProduct.productID ===
+                                      product.productID,
+                                  ) || product.productName === field.value,
+                              )
+                              .map((product: Product) => (
+                                <SelectItem
+                                  key={product.productID}
+                                  value={product.productName}
+                                >
+                                  {product.productName}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`dishes.${index}.rating`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dish Rating</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-6 w-6 cursor-pointer ${
+                                  star <= field.value
+                                    ? "fill-[#00B074] text-[#00B074]"
+                                    : "text-gray-300"
+                                }`}
+                                onClick={() =>
+                                  form.setValue(`dishes.${index}.rating`, star)
+                                }
+                              />
+                            ))}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  setDishRatings([...dishRatings, { name: "", rating: 0 }]);
+                  form.setValue(`dishes.${dishRatings.length}`, {
+                    name: "",
+                    rating: 0,
+                  });
+                }}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Another Dish
+              </Button>
 
               <Button
                 type="submit"

@@ -76,6 +76,8 @@ export default function AnalyticsClient() {
               getReportBill(startDate, endDate),
             ]);
 
+          console.log(newProductReport);
+
           setAnalyticsData({
             revenueData: newRevenueData,
             productReportData: newProductReport,
