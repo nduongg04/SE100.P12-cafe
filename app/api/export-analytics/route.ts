@@ -14,14 +14,6 @@ export async function POST(req: NextRequest) {
       endDate,
     } = data;
 
-		console.log(revenueData,
-      productReportData,
-      billReportData,
-      customerReviews,
-      startDate,
-      endDate,
-    );
-
     const workbook = new Excel.Workbook();
 
     // Summary Sheet
