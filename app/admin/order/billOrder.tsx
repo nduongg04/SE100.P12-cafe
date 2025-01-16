@@ -17,7 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2, Plus, Minus, SearchCheck, CircleX } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -35,18 +39,11 @@ type Props = {
   data: PrdBill[];
   setData: React.Dispatch<React.SetStateAction<PrdBill[]>>;
   tableOrder: number | null;
-  updateStatus: (tableId: number, status: string) => void;
+  updateStatus: (tableId:number,status:string) => void;
   resetData: () => void;
-  newCustomer: Customer | null;
+  newCustomer: Customer|null;
 };
-export default function BillTable({
-  data,
-  setData,
-  tableOrder,
-  updateStatus,
-  resetData,
-  newCustomer,
-}: Props) {
+export default function BillTable({ data, setData, tableOrder,updateStatus,resetData,newCustomer }: Props) {
   const url = process.env.BASE_URL;
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -61,12 +58,13 @@ export default function BillTable({
   const [payType, setPayType] = useState<string>("Chuyển khoản");
   const [openBill, setOpenBill] = useState<boolean>(false);
   const [openPayType, setOpenPayType] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false);
-  const [finishedBill, setFinishedBill] = useState(false);
-  const [suggestCustomer, setSuggestCustomer] = useState<Customer[]>([]);
-  const [openSuggestCustomer, setOpenSuggestCustomer] = useState(false);
-  const [openSuggestVoucher, setOpenSuggestVoucher] = useState(false);
-  const [suggestVoucher, setSuggestVoucher] = useState<VoucherApi[]>([]);
+  const [loading,setLoading]= useState(false);
+  const [finishedBill,setFinishedBill]= useState(false);
+  const [suggestCustomer,setSuggestCustomer]= useState<Customer[]>([]);
+  const [openSuggestCustomer,setOpenSuggestCustomer]= useState(false);
+  const [openSuggestVoucher,setOpenSuggestVoucher]= useState(false);
+  const [suggestVoucher,setSuggestVoucher]= useState<VoucherApi[]>([]);
+
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -77,21 +75,16 @@ export default function BillTable({
       const datas = await getCustomerData();
       setListCustomer(datas);
       const vouchers = await getAllVoucher();
-      const filteredVouchers = vouchers.filter((item) => {
-        const [dayExpired, monthExpired, yearExpired] = item.expiredDate
-          .split("/")
-          .map(Number);
-        const expiredDate = new Date(yearExpired, monthExpired - 1, dayExpired);
-        const [dayCreate, monthCreate, yearCreate] = item.createdDate
-          .split("/")
-          .map(Number);
-        const createDate = new Date(yearCreate, monthCreate - 1, dayCreate);
-        const currentDate = new Date();
-        if (
-          item.maxApply > 0 &&
-          expiredDate > currentDate &&
-          createDate < currentDate
-        ) {
+      const filteredVouchers = vouchers.filter((item)=>{
+         const [dayExpired, monthExpired, yearExpired] = item.expiredDate.split("/").map(Number);
+         const expiredDate = new Date(yearExpired, monthExpired - 1, dayExpired);
+         const [dayCreate, monthCreate, yearCreate] = item.createdDate
+           .split("/")
+           .map(Number);
+         const createDate = new Date(yearCreate, monthCreate - 1, dayCreate);
+         const currentDate = new Date();
+         if(item.maxApply>0 && expiredDate>currentDate && createDate<currentDate){
+         
           return item;
         }
       });
@@ -99,40 +92,37 @@ export default function BillTable({
     };
     fetchData();
   }, []);
-  useEffect(() => {
-    if (newCustomer) {
-      setListCustomer([...listCustomer, newCustomer]);
+  useEffect(()=>{
+    if(newCustomer){
+      setListCustomer([...listCustomer,newCustomer]);
     }
-  }, [newCustomer]);
+  },[newCustomer])
   useEffect(() => {
     const total = data.reduce((acc, item) => acc + item.Total, 0);
     setTotal(total);
-    let discountCus = 0;
-    let discountVoucher = 0;
-    let totalBill2 = total;
+    let totalBill = total;
     if (customer?.customerType) {
-      discountCus = (total * customer.customerType.discountValue) / 100;
+      totalBill = total - (total * customer.customerType.discountValue) / 100;
     }
     if (voucher) {
       if (voucher.voucherType.voucherTypeID == 1) {
-        discountVoucher = (total * voucher.voucherValue) / 100;
+        totalBill = totalBill - (total * voucher.voucherValue) / 100;
       } else if (voucher.voucherType.voucherTypeID == 2) {
-        discountVoucher = voucher.voucherValue;
+        totalBill = totalBill - voucher.voucherValue;
       }
-      if (totalBill2 <= 0) {
-        totalBill2 = 0;
+      if (totalBill < 0) {
+        totalBill = 0;
       }
     }
-    totalBill2 = totalBill2 - discountCus - discountVoucher;
-    setTotalBill(totalBill2);
+    setTotalBill(totalBill);
   }, [customer, voucher, data]);
   useEffect(() => {
-    if (finishedBill && !openBill) {
+    if(finishedBill && !openBill){
       resetData();
       resetBill();
       setFinishedBill(false);
     }
-  }, [finishedBill, openBill]);
+  }, [finishedBill,openBill]);
   const resetBill = () => {
     setData([]);
     setCustomer(null);
@@ -147,15 +137,15 @@ export default function BillTable({
       try {
         // Tạo canvas từ nội dung HTML
         const canvas = await html2canvas(content, { scale: 2 });
-
+  
         // Chuyển canvas thành ảnh (dạng URL)
         const imgData = canvas.toDataURL("image/png");
-
+  
         // Tạo thẻ <a> để tải xuống
         const link = document.createElement("a");
         link.href = imgData; // Gán URL của ảnh
         link.download = `bill-${idBill}-${Date.now()}.png`; // Tên file khi tải xuống
-
+  
         // Tự động kích hoạt tải xuống
         document.body.appendChild(link); // Thêm thẻ vào DOM để kích hoạt
         link.click();
@@ -168,77 +158,76 @@ export default function BillTable({
     }
     setOpenBill(false);
   };
-
-  const handleAddBooking = async (billId: number, tableId: number) => {
-    const res = await addBooking(billId, tableId);
-    if (res) {
-      updateStatus(tableId, "Booked");
+ 
+  const handleAddBooking=async (billId:number, tableId:number)=> { 
+    const res= await addBooking(billId,tableId)
+    if(res)
+    {
+      updateStatus(tableId,'Booked')
     }
-  };
+  }   
   const addBill = async (payType: number) => {
     if (payType == 1) {
       setPayType("Chuyển khoản");
     } else {
       setPayType("Tiền mặt");
     }
-    if (data.length != 0) {
-      setOpenPayType(false);
-      setLoading(true);
-      const cookies = await getCookies("refreshToken");
-      const token = cookies?.value;
-      const url = process.env.BASE_URL;
-      const billDetails = data.map((item) => ({
-        productId: item.ProductId,
-        productName: item.ProductName,
-        productPrice: item.Price,
-        productCount: item.Quantity,
-        totalPriceDtail: item.Total,
-      }));
-      try {
-        console.log(
-          JSON.stringify({
-            staffId: user?.staffId,
-            status: tableOrder ? "Pending" : "Successful",
-            totalPrice: totalBill,
-            customerId: customer?.customerId,
-            voucherId: voucher?.voucherID,
-            payTypeId: payType,
-            billDetails: billDetails,
-          }),
-        );
-        const response = await fetch(`${url}/bill/create`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            staffId: user?.staffId,
-            status: tableOrder ? "Pending" : "Successful",
-            totalPrice: totalBill,
-            customerId: customer?.customerId,
-            voucherId: voucher?.voucherID,
-            payTypeId: payType,
-            billDetails: billDetails,
-          }),
-        });
-        const data = await response.json();
-        console.log(data);
-        if (!response.ok) {
-          throw new Error(data.message);
-        } else {
-          if (tableOrder) {
-            await handleAddBooking(data.data.billId, tableOrder);
-          }
-          setIdBill(data.data.billId);
-          setOpenBill(true);
-          setFinishedBill(true);
+    if(data.length!=0){
+      setOpenPayType(false)
+    setLoading(true)
+    const cookies = await getCookies("refreshToken");
+    const token = cookies?.value;
+    const url = process.env.BASE_URL;
+    const billDetails = data.map((item) => ({
+      productId: item.ProductId,
+      productName: item.ProductName,
+      productPrice: item.Price,
+      productCount: item.Quantity,
+      totalPriceDtail: item.Total,
+    }));
+    try {
+      console.log(JSON.stringify({
+        staffId: user?.staffId,
+        status: tableOrder?"Pending":"Successful",
+        totalPrice: totalBill,
+        customerId: customer?.customerId,
+        voucherId: voucher?.voucherID,
+        payTypeId: payType,
+        billDetails: billDetails,
+      }))
+      const response = await fetch(`${url}/bill/create`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          staffId: user?.staffId,
+          status: tableOrder?"Pending":"Successful",
+          totalPrice: totalBill,
+          customerId: customer?.customerId,
+          voucherId: voucher?.voucherID,
+          payTypeId: payType,
+          billDetails: billDetails,
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
+      if (!response.ok) {
+        throw new Error(data.message);
+      } else {
+        if(tableOrder){
+          await handleAddBooking(data.data.billId,tableOrder)
         }
-      } catch (e) {
-        toast.error("Failed to add customer: " + e);
+        setIdBill(data.data.billId);
+        setOpenBill(true);
+        setFinishedBill(true);
       }
-      setLoading(false);
+    } catch (e) {
+      toast.error("Failed to add customer: " + e);
     }
+    setLoading(false)
+  }
   };
   const handleDelete = (id: number) => {
     setData((prevList) => prevList.filter((item) => item.ProductId !== id));
@@ -255,14 +244,14 @@ export default function BillTable({
       ),
     );
   };
-  const handleChooseCustomer = (customer: Customer) => {
+  const handleChooseCustomer = (customer:Customer) => {
     setCustomer(customer);
     setSearchCustomer("");
     setOpenSuggestCustomer(false);
     setSuggestCustomer([]);
   };
-  useEffect(() => {
-    if (searchCustomer.length > 0) {
+  useEffect(()=>{
+    if(searchCustomer.length>0){
       const find = listCustomer.filter(
         (item) =>
           item.phoneNumber.includes(searchCustomer) ||
@@ -274,33 +263,34 @@ export default function BillTable({
         setSuggestCustomer(find);
       }
       setOpenSuggestCustomer(true);
-    } else {
+    }
+    else{
       setOpenSuggestCustomer(false);
       setSuggestCustomer([]);
     }
-  }, [searchCustomer]);
-  const handleChooseVoucher = (voucher: VoucherApi) => {
+  },[searchCustomer])
+  const handleChooseVoucher = (voucher:VoucherApi) => {
     setVoucher(voucher);
     setSearchVoucher("");
     setOpenSuggestVoucher(false);
     setSuggestVoucher([]);
-  };
-  useEffect(() => {
-    if (searchVoucher.length > 0) {
-      const find = listVoucher.filter((item) =>
-        item.voucherCode.includes(searchVoucher),
-      );
-      if (find.length > 0) {
+  }
+  useEffect(()=>{
+    if(searchVoucher.length>0){
+      const find = listVoucher.filter((item)=>item.voucherCode.includes(searchVoucher));
+      if(find.length>0){
         setSuggestVoucher(find);
-      } else {
+      }
+      else{
         setSuggestVoucher([]);
       }
       setOpenSuggestVoucher(true);
-    } else {
+    }
+    else{
       setSuggestVoucher([]);
       setOpenSuggestVoucher(false);
     }
-  }, [searchVoucher]);
+  },[searchVoucher])
   const columns: ColumnDef<PrdBill>[] = [
     {
       id: "action",
@@ -310,7 +300,7 @@ export default function BillTable({
             <Button
               variant="ghost"
               onClick={() => handleDelete(row.original.ProductId)}
-              className="ml-2 mr-0 p-1"
+              className="ml-0 min-[550px]:ml-2 mr-0 p-0 min-[550px]:p-1"
             >
               <Trash2 />
             </Button>
@@ -326,7 +316,7 @@ export default function BillTable({
       header: "Tên món",
       accessorKey: "ProductName",
       cell: ({ row }) => {
-        return <p className="w-40">{row.getValue("ProductName")}</p>;
+        return <p className="w-16 min-[550px]:w-40">{row.getValue("ProductName")}</p>;
       },
     },
     {
@@ -347,7 +337,7 @@ export default function BillTable({
               min={1}
               value={value}
               onChange={(e) => handleChange(e)}
-              className="w-16"
+              className="w-10 min-[550px]:w-16"
             />
           </div>
         );
@@ -371,17 +361,18 @@ export default function BillTable({
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
-    <div className="mb-2 ml-2 mt-2 h-full min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
-      <div className="flex justify-between">
+    <div className="mb-2 lg:ml-2 mr-2 lg:mr-0 mt-2 h-full min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
+      <div className="flex-col min-[550px]:flex-row flex justify-between ">
         <div
           className="relative flex items-center"
           onClick={(e) => e.stopPropagation()}
         >
           <h2>Customer:</h2>
+          
 
           {customer ? (
             <>
-              <p className="ml-2 truncate border-b border-gray-400 font-semibold">
+              <p className="ml-2 border-b border-gray-400 font-semibold truncate">
                 {customer.customerName}
               </p>
               <Button
@@ -405,6 +396,7 @@ export default function BillTable({
                 onBlur={() => {
                   setOpenSuggestCustomer(false);
                 }}
+                
                 className="ml-3 h-8 w-[8.5rem]"
               />
               <SearchCheck color="gray" className="ml-2" />
@@ -439,11 +431,11 @@ export default function BillTable({
           )}
         </div>
 
-        <div className="relative flex items-center">
-          <h2>Voucher:</h2>
+        <div className="relative flex items-center mt-2 min-[550px]:mt-0">
+          <h2 className="min-[550px]:mr-0 mr-[0.7rem]">Voucher:</h2>
           {voucher ? (
             <>
-              <p className="ml-2 truncate border-b border-gray-400 font-semibold">
+              <p className="ml-2 border-b border-gray-400 font-semibold truncate">
                 {voucher.voucherCode}
               </p>
               <Button
@@ -460,7 +452,7 @@ export default function BillTable({
                 value={searchVoucher}
                 onChange={(e) => setSearchVoucher(e.target.value)}
                 onFocus={() => {
-                  if (suggestVoucher.length > 0) {
+                  if (suggestVoucher.length >0) {
                     setOpenSuggestVoucher(true);
                   }
                 }}
@@ -484,8 +476,7 @@ export default function BillTable({
                     >
                       <p className="font-semibold">{item.voucherCode}</p>
                       <p className="-mt-[2px] text-sm text-gray-500">
-                        - {item.voucherValue}{" "}
-                        {item.voucherType.voucherTypeID == 1 ? "%" : "đ"}
+                        - {item.voucherValue} {item.voucherType.voucherTypeID == 1 ? "%" : "đ"}
                       </p>
                     </div>
                   ))
@@ -597,10 +588,10 @@ export default function BillTable({
           </p>
         </div>
       </div>
-      <div className="mr-3 mt-4 flex justify-end gap-2 lg:absolute lg:bottom-2 lg:right-1">
+      <div className="mr-3 pb-2 lg:pb-0 mt-4 flex justify-end gap-2 lg:absolute lg:bottom-2 lg:right-1">
         <Button
           onClick={resetBill}
-          disabled={data.length == 0}
+          disabled={data.length==0}
           className="bg-red-500 transition duration-150 ease-in-out hover:bg-red-400 active:scale-95 active:shadow-lg"
         >
           Delete
@@ -611,7 +602,7 @@ export default function BillTable({
               setOpenPayType(true);
             }
           }}
-          disabled={data.length == 0}
+          disabled={data.length==0}
           className="bg-green-500 px-5 transition duration-150 ease-in-out hover:bg-green-400 active:scale-95 active:shadow-lg"
         >
           {loading ? (
@@ -631,7 +622,7 @@ export default function BillTable({
       <Dialog open={openPayType} onOpenChange={setOpenPayType}>
         <DialogContent className="sm:max-w-[400px]">
           <p className="h-auto overflow-visible text-center text-xl font-semibold">
-            Please choose a payment method
+          Please choose a payment method
           </p>
           <DialogFooter>
             <div className="mt-1 flex w-full justify-center gap-4">

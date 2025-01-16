@@ -260,7 +260,7 @@ export default function OrderPage({}: Props) {
             <p className="w-full text-center">Take-away</p>
           </TabsTrigger>
         </TabsList>
-        <div className="absolute right-1 top-3 flex items-center">
+        <div className="absolute right-1 top-[-2rem] min-[520px]:top-3 flex items-center">
           {tableOrder && tableNumber && (
             <p className="mr-5 text-xl font-semibold">Bàn #{tableNumber}</p>
           )}
