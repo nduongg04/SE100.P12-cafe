@@ -107,24 +107,21 @@ export default function BillTable({
   useEffect(() => {
     const total = data.reduce((acc, item) => acc + item.Total, 0);
     setTotal(total);
-    let discountCus = 0;
-    let discountVoucher = 0;
-    let totalBill2 = total;
+    let totalBill = total;
     if (customer?.customerType) {
-      discountCus = (total * customer.customerType.discountValue) / 100;
+      totalBill = total - (total * customer.customerType.discountValue) / 100;
     }
     if (voucher) {
       if (voucher.voucherType.voucherTypeID == 1) {
-        discountVoucher = (total * voucher.voucherValue) / 100;
+        totalBill = totalBill - (total * voucher.voucherValue) / 100;
       } else if (voucher.voucherType.voucherTypeID == 2) {
-        discountVoucher = voucher.voucherValue;
+        totalBill = totalBill - voucher.voucherValue;
       }
-      if (totalBill2 <= 0) {
-        totalBill2 = 0;
+      if (totalBill < 0) {
+        totalBill = 0;
       }
     }
-    totalBill2 = totalBill2 - discountCus - discountVoucher;
-    setTotalBill(totalBill2);
+    setTotalBill(totalBill);
   }, [customer, voucher, data]);
   useEffect(() => {
     if (finishedBill && !openBill) {
@@ -298,7 +295,7 @@ export default function BillTable({
             <Button
               variant="ghost"
               onClick={() => handleDelete(row.original.ProductId)}
-              className="ml-2 mr-0 p-1"
+              className="ml-0 min-[550px]:ml-2 mr-0 p-0 min-[550px]:p-1"
             >
               <Trash2 />
             </Button>
@@ -314,7 +311,7 @@ export default function BillTable({
       header: "Tên món",
       accessorKey: "ProductName",
       cell: ({ row }) => {
-        return <p className="w-40">{row.getValue("ProductName")}</p>;
+        return <p className="w-16 min-[550px]:w-40">{row.getValue("ProductName")}</p>;
       },
     },
     {
@@ -335,7 +332,7 @@ export default function BillTable({
               min={1}
               value={value}
               onChange={(e) => handleChange(e)}
-              className="w-16"
+              className="w-10 min-[550px]:w-16"
             />
           </div>
         );
@@ -359,8 +356,8 @@ export default function BillTable({
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
-    <div className="mb-2 ml-2 mt-2 h-full min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
-      <div className="flex justify-between">
+    <div className="mb-2 lg:ml-2 mr-2 lg:mr-0 mt-2 h-full min-w-fit rounded-lg bg-white px-3 pt-3 shadow-sm lg:relative">
+      <div className="flex-col min-[550px]:flex-row flex justify-between ">
         <div
           className="relative flex items-center"
           onClick={(e) => e.stopPropagation()}
@@ -427,8 +424,8 @@ export default function BillTable({
           )}
         </div>
 
-        <div className="relative flex items-center">
-          <h2>Voucher:</h2>
+        <div className="relative flex items-center mt-2 min-[550px]:mt-0">
+          <h2 className="min-[550px]:mr-0 mr-[0.7rem]">Voucher:</h2>
           {voucher ? (
             <>
               <p className="ml-2 truncate border-b border-gray-400 font-semibold">
@@ -585,7 +582,7 @@ export default function BillTable({
           </p>
         </div>
       </div>
-      <div className="mr-3 mt-4 flex justify-end gap-2 lg:absolute lg:bottom-2 lg:right-1">
+      <div className="mr-3 pb-2 lg:pb-0 mt-4 flex justify-end gap-2 lg:absolute lg:bottom-2 lg:right-1">
         <Button
           onClick={resetBill}
           disabled={data.length == 0}
