@@ -58,3 +58,17 @@ declare type TableType = {
   tableTypeID: number;
   tableNameType: string;
 }
+declare type CustomerType = {
+  customerTypeID: number;
+  customerTypeName: string;
+  discountValue: number;
+  boundaryRevenue: number;
+};
+declare type Customer = {
+  customerID: number
+  customerName: string
+  phoneNumber: string
+  email: string
+  revenue: number
+  customerType: CustomerType | null
+}

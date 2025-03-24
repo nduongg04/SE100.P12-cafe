@@ -8,6 +8,7 @@ import TableOrder from "./tableOrder";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { getAllTable } from "@/lib/actions/table.action";
+import { TableApiAdapter } from "@/lib/apis/tableAPI";
 import { BillApi, Customer, getBillBooking, getCategoryData, getProductData, unBookedTable, updateTableStatus } from "./fetchingData";
 import { toast } from "sonner";
 import Loading from "react-loading";
@@ -21,6 +22,7 @@ import { getCookies } from "@/lib/action";
 type Props = {};
 
 export default function OrderPage({ }: Props) {
+  const tableAdapter = new TableApiAdapter();
   const [listPrdBill, setListPrdBill] = React.useState<PrdBill[]>([]);
   const [tableOrder, setTableOrder] = React.useState<number | null>(null);
   const [tabDineIn, setTabDineIn] = React.useState<boolean>(false);
@@ -44,7 +46,7 @@ export default function OrderPage({ }: Props) {
     async function fetchData() {
       console.log("fetch table")
       setIsLoadingTable(true);
-      const tables = await getAllTable();
+      const tables = await tableAdapter.getAll();
       if (!tables) {
         toast.error("Failed to fetch tables");
         return [];

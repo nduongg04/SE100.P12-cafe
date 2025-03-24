@@ -28,24 +28,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import {
-    getAllFloor,
-    getAllTableType,
-    addFloor,
-    deleteFloor,
-  addTable,
-  deleteTable,
-  getAllTable,
-  updateTable,
-} from "@/lib/actions/table.action";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Tally3, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import * as z from "zod";
 import Tooltip from "@/components/custom/toolTip";
-
+import { TableApiAdapter } from "@/lib/apis/tableAPI";
+import { FloorApiAdapter } from "@/lib/apis/floorAPI";
+import { TableTypeApiAdapter } from "@/lib/apis/tableType";
 export default function Table() {
+  const tableAdapter = new TableApiAdapter();
+  const floorAdapter = new FloorApiAdapter();
+  const tableTypeAdapter = new TableTypeApiAdapter();
   const [isAddTableDialogOpen, setIsAddTableDialogOpen] = useState(false);
   const [isAddFloorDialogOpen, setIsAddFloorDialogOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
@@ -59,7 +54,7 @@ export default function Table() {
   const { data: tables = [] as Table[], isLoading: isFetching } = useQuery<Table[]>({
     queryKey: ["tables"],
     queryFn: async () => {
-      const tables = await getAllTable();
+      const tables = await tableAdapter.getAll();
       if (!tables) {
         toast({
           title: "Failed to fetch tables",
@@ -74,7 +69,7 @@ export default function Table() {
   const { data: floors = [] as Floor[] } = useQuery<Floor[]>({
     queryKey: ["floors"],
     queryFn: async () => {
-      const floors = await getAllFloor();
+      const floors = await floorAdapter.getAll();
       if (!floors) {
         toast({
           title: "Failed to fetch floors",
@@ -89,7 +84,7 @@ export default function Table() {
   const { data: tableTypes = [] as TableType[] } = useQuery<TableType[]>({
     queryKey: ["tableTypes"],
     queryFn: async () => {
-      const tableTypes = await getAllTableType();
+      const tableTypes = await tableTypeAdapter.getAll();
       if (!tableTypes) {
         toast({
           title: "Failed to fetch table types",
@@ -115,7 +110,7 @@ export default function Table() {
       setIsLoading(true);
       if (typeof window !== 'undefined') {
         const table = (
-          await addTable({
+          await tableAdapter.add({
             tableNumber: newTable.tableNumber,
             tableTypeID: newTable.tableTypeID,
             floor: {
@@ -155,9 +150,7 @@ export default function Table() {
       setIsLoading(true);
       if (typeof window !== 'undefined') {
         const floor = (
-          await addFloor({
-            floorNumber: newFloor.floorNumber,
-          })
+          await floorAdapter.add(newFloor.floorNumber)
         )?.data;
         if (!floor) {
           throw new Error("Failed to add floor");
@@ -190,7 +183,7 @@ export default function Table() {
       setIsLoading(true);
       if (!editingTable) throw new Error("No table selected for editing");
       try {
-        const response = await updateTable({
+        const response = await tableAdapter.update({
             ...updatedTable,
             tableID: editingTable.tableID,
             tableNumber: updatedTable.tableNumber,
@@ -238,7 +231,7 @@ export default function Table() {
 
   const floorModifyMutation = useMutation({
     mutationFn: async (floorID: number) => {
-      const message = await deleteFloor(floorID);
+      const message = await floorAdapter.delete(floorID);
       if (!message) {
         throw new Error("Failed to delete floor");
       }
@@ -262,7 +255,7 @@ export default function Table() {
   });
   const deleteMutation = useMutation({
     mutationFn: async (tableID: number) => {
-      const message = await deleteTable(tableID);
+      const message = await tableAdapter.delete(tableID);
       if (!message) {
         throw new Error("Failed to delete table");
       }
@@ -291,7 +284,7 @@ export default function Table() {
           throw new Error("Cannot delete floor with tables in it");
         }
       });
-      const message = await deleteFloor(floorID);
+      const message = await floorAdapter.delete(floorID);
       if (!message) {
         throw new Error("Failed to delete floor");
       }

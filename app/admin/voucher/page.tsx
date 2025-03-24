@@ -37,13 +37,15 @@ import {
   getAllVouchers,
   updateVoucher,
 } from "@/lib/actions/voucher.action";
-import { getAllCustomers, Customer } from "@/lib/actions/customer.action";
+import { getAllCustomers} from "@/lib/actions/customer.action";
 import { format } from "date-fns";
 import { Pencil, Plus, Search, Send, TriangleAlert, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from "react";
 import { z } from "zod";
 import { useDebounce } from "@/hooks/use-debounce";
 import LoadingSpinner from "@/components/admin/LoadingSpinner";
+import { VoucherApiAdapter } from "@/lib/apis/voucherAPI";
+import { CustomerApiAdapter } from "@/lib/apis/customerAPI";
 
 function adjustToLocalDate(date: Date): Date {
   const localDate = new Date(date);
@@ -53,6 +55,8 @@ function adjustToLocalDate(date: Date): Date {
 }
 
 export default function VoucherManagement() {
+  const voucherApi = new VoucherApiAdapter();
+  const customerApi = new CustomerApiAdapter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedVouchers, setSelectedVouchers] = useState<number[]>([]);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
@@ -70,8 +74,8 @@ export default function VoucherManagement() {
     const fetchData = async () => {
       try {
         const [fetchedVouchers, fetchedCustomers] = await Promise.all([
-          getAllVouchers(),
-          getAllCustomers()
+          voucherApi.getAll(),
+          customerApi.getAll()
         ]);
         if (fetchedVouchers) {
           setVouchers(fetchedVouchers);
@@ -141,7 +145,7 @@ export default function VoucherManagement() {
         expiredAt: adjustToLocalDate(values.expiredAt),
       };
 
-      const newVoucher = await createVoucher(updatedValues);
+      const newVoucher = await voucherApi.create(updatedValues);
       if (newVoucher) {
         setVouchers((prev) => [...prev, newVoucher]);
         toast({
@@ -174,7 +178,7 @@ export default function VoucherManagement() {
         expiredAt: adjustToLocalDate(values.expiredAt),
       };
 
-      const updatedVoucher = await updateVoucher(updatedValues);
+      const updatedVoucher = await voucherApi.update(updatedValues);
       if (updatedVoucher) {
         setVouchers((prev) =>
           prev.map((v) => (v.id === updatedVoucher.id ? updatedVoucher : v))
@@ -200,7 +204,7 @@ export default function VoucherManagement() {
   const handleDeleteConfirm = async () => {
     setIsLoading(true);
     try {
-      await deleteVouchers(selectedVouchers);
+      await voucherApi.delete(selectedVouchers);
       setVouchers((prev) =>
         prev.filter((v) => !selectedVouchers.includes(v.id))
       );
