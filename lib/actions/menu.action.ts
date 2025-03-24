@@ -10,7 +10,6 @@ export const getAllProduct = async () => {
       { method: "GET" },
     );
     const data = await response.json();
-
     return data.map((dish: Dish) => ({
       ...dish,
       categoryName:

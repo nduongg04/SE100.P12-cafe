@@ -19,7 +19,7 @@ export class CustomerApiAdapter implements CustomerClientInterface {
     if (!response) {
       return null;
     }
-    return response.data.map((customer: any) => ({
+    return response.map((customer: any) => ({
       customerID: customer.customerID,
       customerName: customer.customerName,
       phoneNumber: customer.phoneNumber,

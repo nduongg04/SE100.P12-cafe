@@ -20,6 +20,7 @@ import {
   getAllProduct,
   updateProduct,
 } from "@/lib/actions/menu.action";
+import { ProductApiAdapter } from "@/lib/apis/productAPI";
 import { uploadImage } from "@/lib/actions/upload.action";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Tally3, X } from "lucide-react";
@@ -30,6 +31,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import LoadingSpinner from "@/components/admin/LoadingSpinner";
 
 export default function ProductMenu() {
+  const productApi = new ProductApiAdapter();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDishDialogOpen, setIsAddDishDialogOpen] = useState(false);
@@ -49,7 +51,8 @@ export default function ProductMenu() {
   >({
     queryKey: ["dishes"],
     queryFn: async () => {
-      const dishes = await getAllProduct();
+      const dishes = await productApi.getAll();
+      console.log(dishes);
       if (!dishes) {
         toast({
           title: "Failed to fetch dishes",
@@ -81,11 +84,11 @@ export default function ProductMenu() {
           throw new Error("Failed to upload image");
         }
         const dish = (
-          await addProduct({
+          await productApi.add({
             ...newDish,
             image: uploadImageUrl,
           })
-        )?.data;
+        );
         if (!dish) {
           throw new Error("Failed to add dish");
         }
@@ -137,20 +140,19 @@ export default function ProductMenu() {
       }
 
       try {
-        const dish = await updateProduct({
+        const dish = await productApi.update({
           ...updatedDish,
           productID: editingDish.productID,
           image: imageUrl,
         });
 
-        if (!dish?.data) {
+        if (!dish) {
           throw new Error("Failed to modify dish");
         }
 
         setIsLoading(false);
         setEditingDish(null);
-        console.log(dish.data);
-        return dish.data;
+        return dish;
       } catch (error) {
         setIsLoading(false);
         throw error;
@@ -175,7 +177,7 @@ export default function ProductMenu() {
 
   const deleteMutation = useMutation({
     mutationFn: async (productID: number) => {
-      const message = await deleteProduct(productID);
+      const message = await productApi.delete(productID);
       if (!message) {
         throw new Error("Failed to delete dish");
       }

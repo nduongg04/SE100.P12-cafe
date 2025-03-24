@@ -84,6 +84,7 @@ export default function VoucherManagement() {
           setCustomers(fetchedCustomers);
         }
       } catch (error) {
+        console.log(error);
         toast({
           title: "Error",
           description: "Failed to fetch data",

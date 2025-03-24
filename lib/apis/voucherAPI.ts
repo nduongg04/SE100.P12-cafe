@@ -36,14 +36,15 @@ export class VoucherApiAdapter implements VoucherClientInterface {
     if (!vouchers) {
       return null;
     }
+    console.log("vouchers", vouchers);
     return vouchers.map((voucher: any) => ({
-      id: voucher.voucherID,
-      code: voucher.voucherCode,
+      id: voucher.id,
+      code: voucher.code,
       value: voucher.value,
-      typeName: voucher.voucherType.typeName,
-      numberOfApplications: voucher.maxApply,
-      createdAt: voucher.createdDate,
-      expiredAt: voucher.expiredDate,
+      typeName: voucher.typeName,
+      numberOfApplications: voucher.numberOfApplications,
+      createdAt: voucher.createdAt,
+      expiredAt: voucher.expiredAt,
     }));
   }
   async create(voucher: {
