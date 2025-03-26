@@ -12,7 +12,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import TableCardOrder from "@/components/employee/order/tableCardOrder";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { FloorApiAdapter } from "@/lib/apis/floorAPI";
+import { TableTypeApiAdapter } from "@/lib/apis/tableType";
 type props={
   setTableOrder: (tableId: number,tableNumber:number) => void;
   tables:Table[];
@@ -21,6 +22,8 @@ type props={
   showBill: (tableId:number) => Promise<void>;
 }
 export default function TableOrder({setTableOrder,tables,isFetching,updateStatus,showBill}:props) {
+  const floorApi = new FloorApiAdapter();
+  const tableTypeApi = new TableTypeApiAdapter();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -28,7 +31,7 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
   const { data: floors = [] as Floor[] } = useQuery<Floor[]>({
     queryKey: ["floors"],
     queryFn: async () => {
-      const floors = await getAllFloor();
+      const floors = await floorApi.getAll();
       if (!floors) {
         toast({
           title: "Failed to fetch floors",
@@ -43,7 +46,7 @@ export default function TableOrder({setTableOrder,tables,isFetching,updateStatus
   const { data: tableTypes = [] as TableType[] } = useQuery<TableType[]>({
     queryKey: ["tableTypes"],
     queryFn: async () => {
-      const tableTypes = await getAllTableType();
+      const tableTypes = await tableTypeApi.getAll();
       if (!tableTypes) {
         toast({
           title: "Failed to fetch table types",

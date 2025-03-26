@@ -25,25 +25,18 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
 import { Bill } from './columns';
+import { BillApiAdapter } from '@/lib/apis/billAPI';
 const BillDialog = ({bill, onUpdate} : {bill:Bill, onUpdate: (status: "Pending"|"Successful")=>void}) => {
   const [initialStatus] = useState(bill.status);
   const [currentStatus, setCurrentStatus] = useState<"Pending"|"Successful">(bill.status);
-
+  const billApiAdapter = new BillApiAdapter();
   const handleSave = async () => {
     const url = process.env.BASE_URL;
     if (initialStatus !== currentStatus) {
       try {
-        const token = await getCookies('refreshToken');
-        const response = await fetch(`${url}/bill/updatestatus/${bill.id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({status: currentStatus })
-        });
+        const response = await billApiAdapter.updateStatus(bill.id, currentStatus);
 
-        if (!response.ok) {
+        if (!response) {
           toast({
             title: 'Failed to update status',
             description: 'Please try again later',
@@ -52,7 +45,6 @@ const BillDialog = ({bill, onUpdate} : {bill:Bill, onUpdate: (status: "Pending"|
           return
         }
         bill.status = currentStatus;
-        const result = await response.json();
         onUpdate(currentStatus);
         toast({
           title: 'Update status successfully',

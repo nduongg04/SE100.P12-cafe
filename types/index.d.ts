@@ -65,10 +65,40 @@ declare type CustomerType = {
   boundaryRevenue: number;
 };
 declare type Customer = {
-  customerID: number
+  customerID: string
   customerName: string
   phoneNumber: string
   email: string
   revenue: number
   customerType: CustomerType | null
 }
+declare type Staff = {
+  staffId: number;
+  staffName: string;
+  username: string;
+  password: string;
+  isAdmin: boolean;
+}
+declare type Bill = {
+  id: number
+  customer: string
+  voucherValue: number
+  voucherTypeIndex?: number
+  staffId: string
+  staff: string
+  payType: string
+  status: "Pending" | "Successful" 
+  totalPrice: number
+  createdAt: Date
+  dateString: string
+  billInfo: BillInfo[]
+}
+declare type BillInfo = {
+  billID: number;
+  productID: string;
+  productName: string;
+  productCount: number;
+  totalPriceDtail: number;
+  productPrice: number;
+}
+

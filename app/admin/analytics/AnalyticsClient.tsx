@@ -24,11 +24,13 @@ import {
   getReportBill,
   getRevenue,
 } from "@/lib/actions/analytics.action";
+import { AnalyticApiAdapter } from "@/lib/apis/analyticAPI";
 import { getAllFeedback } from "@/lib/actions/feedback.action";
 import { Feedback } from "@/types/feedback";
 import { Import } from "lucide-react";
 
 export default function AnalyticsClient() {
+  const analyticApi = new AnalyticApiAdapter();
   const [selectedDate, setSelectedDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),
@@ -71,9 +73,9 @@ export default function AnalyticsClient() {
 
           const [newRevenueData, newProductReport, newBillReport] =
             await Promise.all([
-              getRevenue(startDate, endDate),
-              getProductReport(startDate, endDate),
-              getReportBill(startDate, endDate),
+              analyticApi.getRevenue(startDate, endDate),
+              analyticApi.getProductReport(startDate, endDate),
+              analyticApi.getReportBill(startDate, endDate),
             ]);
 
           console.log(newProductReport);
@@ -120,9 +122,9 @@ export default function AnalyticsClient() {
 
           const [newRevenueData, newProductReport, newBillReport] =
             await Promise.all([
-              getRevenue(startDate, endDate),
-              getProductReport(startDate, endDate),
-              getReportBill(startDate, endDate),
+              analyticApi.getRevenue(startDate, endDate),
+              analyticApi.getProductReport(startDate, endDate),
+              analyticApi.getReportBill(startDate, endDate),
             ]);
 
           setAnalyticsData({

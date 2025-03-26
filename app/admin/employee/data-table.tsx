@@ -46,6 +46,7 @@ import {
 import { TriangleAlert } from "lucide-react"
 import * as React from "react"
 import { toast } from '@/hooks/use-toast';
+import { StaffApiAdapter } from '@/lib/apis/staffAPI';
 interface StaffData {
   staffId: string;
   staffName: string
@@ -66,6 +67,7 @@ export function DataTable<TData, TValue>({
     onAdd,
     onDelete
 }: DataTableProps<StaffData, TValue>) {
+  const staffApi = new StaffApiAdapter();
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = React.useState({})
@@ -93,7 +95,7 @@ export function DataTable<TData, TValue>({
     }
   });
   
-  const addStaff = async () => {
+  const addStaff= async () => {
     if(staffName==='' || username==='' || password===''){
       toast({
         title: 'Failed to add staff',
@@ -129,42 +131,42 @@ export function DataTable<TData, TValue>({
     const cookies = await getCookies('refreshToken');
     const token = cookies?.value;
     const url = process.env.BASE_URL;
-    try{
-      const response = await fetch(`${url}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ staffName, username, password, isAdmin })
-      });
-      if (!response.ok) {
-        toast({
-          title: 'Failed to add staff',
-          description: 'Please try again later',
-          variant: 'destructive'
-        })
-        const data = await response.json();
-        throw new Error(data?.message);
-      }
-      const result = await response.json();
-      toast({
-        title: 'Add staff successfully',
-        description: 'Staff has been added',
-        variant: 'success'
-      })
-      setIsAdmin(true);
-      setStaffName('');
-      setUsername('');
-      setPassword('');
-      onAdd(result.data);
-    }catch(e:any){
-      toast({
-        title: 'Failed to add staff',
-        description: e.message,
-        variant: 'destructive'
-      })
-    }
+     try {
+       const response = await fetch(`${url}/auth/register`, {
+         method: "POST",
+         headers: {
+           Authorization: `Bearer ${token}`,
+           "Content-Type": "application/json",
+         },
+         body: JSON.stringify({ staffName, username, password, isAdmin }),
+       });
+       if (!response.ok) {
+         toast({
+           title: "Failed to add staff",
+           description: "Please try again later",
+           variant: "destructive",
+         });
+         const data = await response.json();
+         throw new Error(data?.message);
+       }
+       const result = await response.json();
+       toast({
+         title: "Add staff successfully",
+         description: "Staff has been added",
+         variant: "success",
+       });
+       setIsAdmin(true);
+       setStaffName("");
+       setUsername("");
+       setPassword("");
+       onAdd(result.data);
+     } catch (e: any) {
+       toast({
+         title: "Failed to add staff",
+         description: e.message,
+         variant: "destructive",
+       });
+     }
   }
   const deleteStaff = async () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -186,12 +188,8 @@ export function DataTable<TData, TValue>({
     const url = process.env.BASE_URL;
     try{
       await Promise.all(staffs.map(async (staff) => {
-        const response = await fetch(`${url}/staff/delete/${staff.staffId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-        }});
-        if (!response.ok) {
+        const response = await staffApi.deleteStaff(staff.staffId);
+        if (!response) {
           throw new Error('Failed to delete staff: '+ staff.staffId);
         }
         table.setRowSelection({}); 

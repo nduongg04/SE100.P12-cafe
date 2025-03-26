@@ -19,7 +19,7 @@ export async function getCustomerData(): Promise<Customer[]> {
             
         }
         const customers: Customer[] = data.map((customer: any) => ({
-            customerId: customer.customerID,
+            customerID: customer.customerID,
             customerName: customer.customerName,
             email: customer.email,
             phoneNumber: customer.phoneNumber,

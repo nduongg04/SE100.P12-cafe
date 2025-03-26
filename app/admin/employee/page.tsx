@@ -3,9 +3,11 @@ import * as React from "react";
 import { Staff, columns } from "./columns";
 import { DataTable } from "./data-table";
 import { getData } from "./fetchingData";
+import { StaffApiAdapter } from "@/lib/apis/staffAPI";
 import { toast } from "sonner";
 
 const EmployeePage = () => {
+    const staffApiAdapter = new StaffApiAdapter();
     const [data, setData] = React.useState<Staff[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const handleUpdate = (staffId:string, staffName: string, username: string) => {
@@ -24,7 +26,7 @@ const EmployeePage = () => {
     React.useEffect(() => {
         async function fetchData() {
             setLoading(true);
-            const datas = await getData();
+            const datas = await staffApiAdapter.getAllStaff();
             setData(datas);
             setLoading(false);
         }
