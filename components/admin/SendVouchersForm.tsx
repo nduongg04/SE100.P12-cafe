@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/hooks/use-toast"
-import { Customer } from "@/lib/actions/customer.action"
 import { sendVouchers } from "@/lib/actions/email.action"
 import { z } from "zod"
 
@@ -69,7 +68,7 @@ export function SendVouchersForm({ vouchers, customers, onClose }: { vouchers: V
       }
 
       const selectedEmails = customers
-        .filter(c => selectedCustomers.includes(c.customerID))
+        .filter(c => selectedCustomers.includes(Number(c.customerID)))
         .map(c => c.email)
       const selectedVoucherCodes = vouchers
         .filter(v => selectedVouchers.includes(v.id))
@@ -125,7 +124,7 @@ export function SendVouchersForm({ vouchers, customers, onClose }: { vouchers: V
             onClick={() => setSelectedCustomers(
               selectedCustomers.length === filteredCustomers.length
                 ? []
-                : filteredCustomers.map(c => c.customerID)
+                : filteredCustomers.map(c => Number(c.customerID))
             )}
           >
             {selectedCustomers.length === filteredCustomers.length ? 'Deselect All' : 'Select All'}
@@ -136,8 +135,8 @@ export function SendVouchersForm({ vouchers, customers, onClose }: { vouchers: V
             <div key={customer.customerID} className="flex items-center space-x-2">
               <Checkbox
                 id={`customer-${customer.customerID}`}
-                checked={selectedCustomers.includes(customer.customerID)}
-                onCheckedChange={() => handleCustomerSelect(customer.customerID)}
+                checked={selectedCustomers.includes(Number(customer.customerID))}
+                onCheckedChange={() => handleCustomerSelect(Number(customer.customerID))}
               />
               <Label htmlFor={`customer-${customer.customerID}`}>{customer.customerName}</Label>
             </div>
