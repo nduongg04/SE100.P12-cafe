@@ -34,7 +34,7 @@ import { getCookies } from "@/lib/action";
 import { User } from "@/app/login/page";
 import html2canvas from "html2canvas";
 import { getAllVoucher } from "./fetchingData";
-
+import { OrderFacade } from "@/lib/apis/orderAPI";
 type Props = {
   data: PrdBill[];
   setData: React.Dispatch<React.SetStateAction<PrdBill[]>>;
@@ -160,7 +160,7 @@ export default function BillTable({ data, setData, tableOrder,updateStatus,reset
   };
  
   const handleAddBooking=async (billId:number, tableId:number)=> { 
-    const res= await addBooking(billId,tableId)
+    const res= await OrderFacade.addBooking(billId,tableId)
     if(res)
     {
       updateStatus(tableId,'Booked')

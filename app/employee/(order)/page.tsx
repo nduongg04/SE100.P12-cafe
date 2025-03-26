@@ -34,6 +34,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import html2canvas from "html2canvas";
 import { getCookies } from "@/lib/action";
+import { OrderFacade } from "@/lib/apis/orderAPI";
 type Props = {};
 
 export default function OrderPage({}: Props) {
@@ -77,8 +78,8 @@ export default function OrderPage({}: Props) {
   useEffect(() => {
     async function fetchData() {
       setIsLoadingMenu(true);
-      const category = await getCategoryData();
-      const products = await getProductData();
+      const category = await OrderFacade.getCategory();
+      const products = await OrderFacade.getProductData();
       setCategories(category);
       setProducts(products);
       setIsLoadingMenu(false);
@@ -99,21 +100,21 @@ export default function OrderPage({}: Props) {
   const handleUpdateTableStatus = async (tableId: number, status: string) => {
     setIsLoadingUnbooked(true);
     if (status == "Not booked") {
-      const result = await unBookedTable(tableId);
+      const result = await OrderFacade.unBookedTable(tableId);
       if (result) {
         updateStatusTable(tableId, status);
         toast.success("Unbooked table successfully");
       }
     }
     if (status == "Under repair") {
-      const result = await updateTableStatus(tableId, status);
+      const result = await OrderFacade.updateTableStatus(tableId, status);
       if (result) {
         updateStatusTable(tableId, status);
         toast.success("Table under repair successfully");
       }
     }
     if (status == "Repaired") {
-      const result = await updateTableStatus(tableId, "Not booked");
+      const result = await OrderFacade.updateTableStatus(tableId, "Not booked");
       if (result) {
         updateStatusTable(tableId, "Not booked");
         toast.success("Table repaired successfully");
@@ -199,7 +200,7 @@ export default function OrderPage({}: Props) {
   };
   const showBill = async (tableId: number) => {
     setIsLoadingUnbooked(true);
-    const bill = await getBillBooking(tableId);
+    const bill = await OrderFacade.getBillBooking(tableId);
     if (bill) {
       setBill(bill);
       setOpenBill(true);

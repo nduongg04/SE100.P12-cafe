@@ -52,7 +52,11 @@ export class ProductApiAdapter implements ProductClientInterface {
     isSoldOut: boolean;
     categoryName: string;
   }): Promise<Dish | null> {
-    return await this.productFacade.add(product);
+    const res = await this.productFacade.add(product);
+    if (!res) {
+      return null;
+    }
+    return res as Dish;
   }
   async update(product: Dish): Promise<Dish | null> {
     return await this.productFacade.update(product);

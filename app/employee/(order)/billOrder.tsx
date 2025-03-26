@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getCustomerData } from "./fetchingData";
 import { addBooking, Customer } from "./fetchingData";
+import { OrderFacade } from "@/lib/apis/orderAPI";
 import { toast } from "sonner";
 import Loading from "react-loading";
 import { getCookies } from "@/lib/action";
@@ -167,7 +168,7 @@ export default function BillTable({
   };
 
   const handleAddBooking = async (billId: number, tableId: number) => {
-    const res = await addBooking(billId, tableId);
+    const res = await OrderFacade.addBooking(billId, tableId);
     if (res) {
       updateStatus(tableId, "Booked");
     }

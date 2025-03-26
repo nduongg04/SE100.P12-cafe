@@ -36,7 +36,7 @@ export class BillApiAdapter implements BillClientInterface {
             payType: item.payType ? item.payType.payTypeName : "Unknown Pay Type",
             status: item.status,
             totalPrice: item.totalPrice,
-            createdAt: parseDate(item.createdAt),
+            createdAt: item.createdAt,
             dateString: item.createdAt,
             billInfo: item.billDetailDTOs.map((info: any) => ({
                 productName: info.productName,

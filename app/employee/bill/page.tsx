@@ -2,13 +2,15 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 
-import { Bill, columns } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { getData } from "./fetchingData";
 import { DateRangePicker } from "@/components/custom/date-range-picker";
 import { set } from "date-fns";
+import { BillApiAdapter } from "@/lib/apis/billAPI";
 
 const BillPage = () => {
+    const billApi = new BillApiAdapter();
     const [data, setData] = React.useState<Bill[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const handleUpdate = (billId:number, newStatus: "Pending"|"Successful") => {

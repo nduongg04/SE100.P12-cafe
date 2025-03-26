@@ -27,7 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "react-loading";
 import { CheckCheck } from "lucide-react";
 import { toast } from "sonner";
-
+import { OrderFacade } from "@/lib/apis/orderAPI";
 export type Product = {
   ProductId: number;
   ProductName: string;
@@ -79,7 +79,7 @@ export default function MenuOrder({
     }
   };
   const updateSoldOut = async (id: number, isSoldOut: boolean) => {
-    const res = await updateProductSoldOut(id, !isSoldOut);
+    const res = await OrderFacade.updateProductSoldOut(id, !isSoldOut);
     if (res) {
       soldOut(id, !isSoldOut);
       toast.success("Update product sold out successfully");

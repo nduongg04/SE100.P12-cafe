@@ -18,7 +18,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { getProductData, getCategoryData, updateProductSoldOut } from './fetchingData'
-
+import { OrderFacade } from '@/lib/apis/orderAPI'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Loading from 'react-loading'
 import { CheckCheck } from 'lucide-react'
@@ -67,7 +67,7 @@ export default function MenuOrder({ listPrdBill, setListPrdBill, productsData, c
         }
     }
     const updateSoldOut = async (id:number,isSoldOut:boolean)=>{
-        const res = await updateProductSoldOut(id,!isSoldOut)
+        const res = await OrderFacade.updateProductSoldOut(id,!isSoldOut)
         if(res){  
             soldOut(id,!isSoldOut)
             toast.success("Update product sold out successfully")
