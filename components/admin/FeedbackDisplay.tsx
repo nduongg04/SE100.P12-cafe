@@ -24,8 +24,19 @@ export function FeedbackDisplay({
   isLoading,
   customerReviews,
 }: FeedbackDisplayProps) {
-  const [customerReviewsObserver, setCustomerReviewsObserver] =
-    useState<Feedback[]>(customerReviews);
+  const [customerReviewsObserver, setCustomerReviewsObserver] = useState<Feedback[]>(customerReviews);
+
+  useEffect(() => {
+    const observer = {
+      update: (notification: string) => {
+        const reviews: Feedback[] = JSON.parse(notification);
+        setCustomerReviewsObserver(reviews);
+      },
+    };
+    feedbackSubject.registerObserver(observer);
+
+    return () => feedbackSubject.removeObserver(observer);
+  }, []);
   if (isLoading) {
     return (
       <Card>
@@ -39,18 +50,6 @@ export function FeedbackDisplay({
       </Card>
     );
   }
-
-  useEffect(() => {
-    const observer = {
-      update: (notification: string) => {
-        const reviews: Feedback[] = JSON.parse(notification);
-        setCustomerReviewsObserver(reviews);
-      },
-    };
-    feedbackSubject.registerObserver(observer);
-
-    return () => feedbackSubject.removeObserver(observer);
-  }, []);
 
   return (
     <Card>
