@@ -1,19 +1,31 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Star } from 'lucide-react'
-import { getAllFeedback } from '@/lib/actions/feedback.action'
-import type { Feedback } from '@/types/feedback'
-import LoadingSpinner from './LoadingSpinner'
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Star } from "lucide-react";
+import { getAllFeedback } from "@/lib/actions/feedback.action";
+import type { Feedback } from "@/types/feedback";
+import LoadingSpinner from "./LoadingSpinner";
+import { feedbackSubject } from "../ui/observer/notificationObserver";
 
 type FeedbackDisplayProps = {
-  isLoading: boolean
-  customerReviews: Feedback[]
-}
+  isLoading: boolean;
+  customerReviews: Feedback[];
+};
 
-export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayProps) {
+export function FeedbackDisplay({
+  isLoading,
+  customerReviews,
+}: FeedbackDisplayProps) {
+  const [customerReviewsObserver, setCustomerReviewsObserver] =
+    useState<Feedback[]>(customerReviews);
   if (isLoading) {
     return (
       <Card>
@@ -25,8 +37,20 @@ export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayP
           <LoadingSpinner />
         </CardContent>
       </Card>
-    )
+    );
   }
+
+  useEffect(() => {
+    const observer = {
+      update: (notification: string) => {
+        const reviews: Feedback[] = JSON.parse(notification);
+        setCustomerReviewsObserver(reviews);
+      },
+    };
+    feedbackSubject.registerObserver(observer);
+
+    return () => feedbackSubject.removeObserver(observer);
+  }, []);
 
   return (
     <Card>
@@ -35,11 +59,17 @@ export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayP
         <CardDescription>Recent feedback from our customers</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {customerReviews.map((feedback) => (
-          <div key={feedback.feedbackId} className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50">
+        {customerReviewsObserver.map((feedback) => (
+          <div
+            key={feedback.feedbackId}
+            className="flex items-start space-x-4 rounded-lg bg-gray-50 p-4"
+          >
             <Avatar>
               <AvatarFallback>
-                {feedback.fullname.split(' ').map(n => n[0]).join('')}
+                {feedback.fullname
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-2">
@@ -49,10 +79,10 @@ export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayP
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${
+                      className={`h-4 w-4 ${
                         i < feedback.starNumber
-                          ? 'fill-[#00B074] text-[#00B074]'
-                          : 'text-gray-300'
+                          ? "fill-[#00B074] text-[#00B074]"
+                          : "text-gray-300"
                       }`}
                     />
                   ))}
@@ -68,6 +98,5 @@ export function FeedbackDisplay({ isLoading, customerReviews }: FeedbackDisplayP
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }
-
