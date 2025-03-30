@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Product } from "@/types/products";
+import { topDishesSubject } from "../ui/observer/notificationObserver";
+import { useEffect, useState } from "react";
 
 type ProductReportData = {
   product: Product;
@@ -19,6 +21,7 @@ type TopDishesProps = {
 };
 
 export default function TopDishes({ data }: TopDishesProps) {
+  const [observerData, setObserverData] = useState<ProductReportData[]>(data);
   if (!data || data.length === 0) {
     return (
       <Card>
@@ -32,11 +35,23 @@ export default function TopDishes({ data }: TopDishesProps) {
     );
   }
 
+  useEffect(() => {
+    const observer = {
+      update: (notification: string) => {
+        const newData: ProductReportData[] = JSON.parse(notification);
+        setObserverData(newData);
+      },
+    };
+    topDishesSubject.registerObserver(observer);
+
+    return () => topDishesSubject.removeObserver(observer);
+  }, []);
+
   // Only show top 5 dishes
-  const topFiveOrderedDishes = [...data]
+  const topFiveOrderedDishes = [...observerData]
     .sort((a, b) => b.orderCount - a.orderCount)
     .slice(0, 5);
-  const topFiveRatedDishes = [...data]
+  const topFiveRatedDishes = [...observerData]
     .sort((a, b) => b.product.averageStar - a.product.averageStar)
     .slice(0, 5);
 
@@ -106,7 +121,9 @@ function DishCard({ item, showOrderCount, showRating }: DishCardProps) {
       </p>
       {showOrderCount && <p className="text-sm">Orders: {item.orderCount}</p>}
       {showRating && (
-        <p className="text-sm">Rating: {item.product.averageStar.toFixed(1)}/5</p>
+        <p className="text-sm">
+          Rating: {item.product.averageStar.toFixed(1)}/5
+        </p>
       )}
       {item.product.isSoldOut && (
         <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-600">
