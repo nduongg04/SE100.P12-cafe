@@ -2,6 +2,7 @@
 
 import { authenticatedFetch } from "../auth";
 import { parse, format } from 'date-fns';
+import { ApiLoggerDecorator } from "../decorator/apiLogger";
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -60,3 +61,8 @@ export async function getReportBill(start: string, end: string) {
   return res.json();
 }
 
+
+export const getRevenueDecorator = new ApiLoggerDecorator(getRevenue).execute;
+export const getRevenueByDateDecorator = new ApiLoggerDecorator(getRevenueByDate).execute;
+export const getProductReportDecorator = new ApiLoggerDecorator(getProductReport).execute;
+export const getReportBillDecorator = new ApiLoggerDecorator(getReportBill).execute;

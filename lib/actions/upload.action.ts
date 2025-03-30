@@ -1,6 +1,7 @@
 "use server";
 
 import { authenticatedFetch } from "@/lib/auth";
+import { ApiLoggerDecorator } from "../decorator/apiLogger";
 
 export const uploadImage = async (formData: FormData) => {
   if (!formData.get("file")) {
@@ -13,3 +14,5 @@ export const uploadImage = async (formData: FormData) => {
   );
   return uploadResponse.json();
 };
+
+const uploadImageDecorator = new ApiLoggerDecorator(uploadImage).execute;

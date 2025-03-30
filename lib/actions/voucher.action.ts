@@ -2,6 +2,7 @@
 
 import { authenticatedFetch } from "../auth";
 import { parseDate } from "../utils";
+import { ApiLoggerDecorator } from "../decorator/apiLogger";
 
 function turnVoucherApiType(voucher: Voucher): VoucherApi {
   const voucherApi: VoucherApi = {
@@ -134,3 +135,7 @@ export async function deleteVouchers(ids: number[]) {
     return false;
   }
 }
+
+export const createVoucherDecorator = new ApiLoggerDecorator(createVoucher).execute;
+export const updateVoucherDecorator = new ApiLoggerDecorator(updateVoucher).execute;
+export const deleteVouchersDecorator = new ApiLoggerDecorator(deleteVouchers).execute;
