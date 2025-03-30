@@ -1,4 +1,5 @@
 import { authenticatedFetch } from "../auth";
+import { ApiLoggerDecorator } from "../decorator/apiLogger";
 
 export const updateBillStatus = async (billId: number, status: string) => {
   const response = await authenticatedFetch(`${process.env.BASE_URL}/bill/updatestatus/${billId}`, { method: "PUT", body: JSON.stringify({ status }) });
@@ -15,3 +16,4 @@ export const getAllBills = async () => {
   }
 };
 
+const updateBillStatusDecorator = new ApiLoggerDecorator(updateBillStatus).execute;
