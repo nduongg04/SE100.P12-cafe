@@ -4,6 +4,7 @@ import { navigate, setCookies } from "@/lib/action";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
 import ReactLoading from "react-loading";
+
 export type User = {
     staffId: string;
     staffName: string;
@@ -17,21 +18,67 @@ type ResponseLogin = {
     refreshToken: string;
 };
 
+// Factory Pattern for creating User and ResponseLogin objects
+class UserFactory {
+    static createUser(data: any): User {
+        return {
+            staffId: data.staffId,
+            staffName: data.staffName,
+            isAdmin: data.isAdmin,
+            username: data.username,
+        };
+    }
+
+    static createResponseLogin(data: any): ResponseLogin {
+        return {
+            data: this.createUser(data.data),
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+        };
+    }
+}
+
+// Strategy Pattern for handling login responses
+interface LoginStrategy {
+    handle(response: Response): Promise<void>;
+}
+
+class SuccessLoginStrategy implements LoginStrategy {
+    async handle(response: Response) {
+        const res: ResponseLogin = await response.json();
+        setCookies("user", JSON.stringify(res.data));
+        setCookies("accessToken", res.accessToken);
+        setCookies("refreshToken", res.refreshToken);
+        navigate("/");
+    }
+}
+
+class ErrorLoginStrategy implements LoginStrategy {
+    private setIsIncorrect: (value: boolean) => void;
+
+    constructor(setIsIncorrect: (value: boolean) => void) {
+        this.setIsIncorrect = setIsIncorrect;
+    }
+
+    async handle(response: Response) {
+        this.setIsIncorrect(true);
+    }
+}
+
 const LoginPage = () => {
     const usernameInpput = useRef<HTMLInputElement>(null);
     const passwordInput = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isIncorrect, setIsIncorrect] = useState(false);
     const baseURL = process.env.BASE_URL;
+
     async function onClick() {
         if (isLoading) {
             return;
         }
         if (!usernameInpput.current?.value || !passwordInput.current?.value) {
-            {
-                setIsIncorrect(true);
-                return;
-            }
+            setIsIncorrect(true);
+            return;
         }
         var data = {
             username: usernameInpput.current?.value,
@@ -45,20 +92,17 @@ const LoginPage = () => {
             },
             body: JSON.stringify(data),
         });
-        if (!response.ok) {
-            setIsIncorrect(true);
-            setIsLoading(false);
-            return;
-        }
-        const res: ResponseLogin = await response.json();
 
-        console.log(res);
-        setCookies("user", JSON.stringify(res.data));
-        setCookies("accessToken", res.accessToken);
-        setCookies("refreshToken", res.refreshToken);
-        setIsLoading(true);
-        navigate("/");
+        let strategy: LoginStrategy;
+        if (response.ok) {
+            strategy = new SuccessLoginStrategy();
+        } else {
+            strategy = new ErrorLoginStrategy(setIsIncorrect);
+        }
+        await strategy.handle(response);
+        setIsLoading(false);
     }
+
     return (
         <div className="flex h-screen items-center justify-center gap-8">
             <img
