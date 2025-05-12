@@ -19,18 +19,13 @@ import { FeedbackDisplay } from "@/components/admin/FeedbackDisplay";
 import LoadingSpinner from "@/components/admin/LoadingSpinner";
 import { PieChartComponent } from "@/components/admin/PieChartComponent";
 import TopDishes from "@/components/admin/TopDishes";
-import {
-  getProductReport,
-  getReportBill,
-  getRevenue,
-} from "@/lib/actions/analytics.action";
-import { AnalyticApiAdapter } from "@/lib/apis/analyticAPI";
 import { getAllFeedback } from "@/lib/actions/feedback.action";
+import { AnalyticApiProxy } from "@/lib/apis/analyticAPI";
 import { Feedback } from "@/types/feedback";
 import { Import } from "lucide-react";
 
 export default function AnalyticsClient() {
-  const analyticApi = new AnalyticApiAdapter();
+  const analyticApi = new AnalyticApiProxy();
   const [selectedDate, setSelectedDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),
