@@ -25,4 +25,3 @@ export class NotificationSubject {
 
 export const notificationService = new NotificationSubject();
 export const feedbackSubject = new NotificationSubject();
-export const topDishesSubject = new NotificationSubject();

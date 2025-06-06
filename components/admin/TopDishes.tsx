@@ -8,8 +8,6 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Product } from "@/types/products";
-import { topDishesSubject } from "../ui/observer/notificationObserver";
-import { useEffect, useState } from "react";
 
 type ProductReportData = {
   product: Product;
@@ -21,7 +19,7 @@ type TopDishesProps = {
 };
 
 export default function TopDishes({ data }: TopDishesProps) {
-  const [observerData, setObserverData] = useState<ProductReportData[]>(data);
+
   if (!data || data.length === 0) {
     return (
       <Card>
@@ -35,23 +33,11 @@ export default function TopDishes({ data }: TopDishesProps) {
     );
   }
 
-  useEffect(() => {
-    const observer = {
-      update: (notification: string) => {
-        const newData: ProductReportData[] = JSON.parse(notification);
-        setObserverData(newData);
-      },
-    };
-    topDishesSubject.registerObserver(observer);
-
-    return () => topDishesSubject.removeObserver(observer);
-  }, []);
-
   // Only show top 5 dishes
-  const topFiveOrderedDishes = [...observerData]
+  const topFiveOrderedDishes = [...data]
     .sort((a, b) => b.orderCount - a.orderCount)
     .slice(0, 5);
-  const topFiveRatedDishes = [...observerData]
+  const topFiveRatedDishes = [...data]
     .sort((a, b) => b.product.averageStar - a.product.averageStar)
     .slice(0, 5);
 
