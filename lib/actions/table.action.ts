@@ -76,7 +76,12 @@ export const deleteTable = async (tableID: number) => {
       `${process.env.BASE_URL}/table/delete/${tableID}`,
       { method: "DELETE" },
     );
-    return response.json();
+    const data = await response.json();
+    if (!response.ok) {
+      // Throw or return error for non-2xx status
+      throw new Error(data.message || "Failed to delete table");
+    }
+    return data;
   } catch (error) {
     console.error(error);
     return null;
